@@ -1,0 +1,19 @@
+<html>
+    <head>
+        <title>RazChess</title>
+        <base href="/" />
+        <link rel="icon" href="/img/favicon64.png" type="image/png">
+        <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
+        <link rel="stylesheet" href="/css/razchess.css">
+    </head>
+    <body>
+        <input type="hidden" id="roomID" value="{{ . }}" />
+        <img id="loading" src="/img/loading.svg" />
+        <div id="board"></div>
+        <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
+        <script type="application/javascript" src="/js/chess-0.10.2.min.js"></script>
+        <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
+        <script type="application/javascript" src="/js/simple-jsonrpc-js.min.js"></script>
+        <script type="application/javascript" src="/js/razchess.js"></script>
+    </body>
+</html>

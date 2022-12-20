@@ -1,0 +1,28 @@
+body {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+}
+#loading {
+    width: 200px;
+    height: 200px;
+}
+#board {
+    display: none;
+    max-width: 80vh;
+    max-height: 80vh;
+    width: 100%;
+    height: 100%;
+}
+.highlight-white {
+    box-shadow: inset 0 0 3px 3px yellow;
+}
+.highlight-black {
+    box-shadow: inset 0 0 3px 3px blue;
+}
