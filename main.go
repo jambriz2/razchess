@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"golang.org/x/net/websocket"
 )
 
 //go:embed assets/*
@@ -98,7 +97,7 @@ func main() {
 
 	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[4:]
-		websocket.Handler(mgr.GetSession(roomID).serve).ServeHTTP(w, r)
+		mgr.GetSessionServer(roomID).ServeHTTP(w, r)
 	})
 	http.ListenAndServe(addr, nil)
 }

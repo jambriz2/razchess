@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -26,6 +27,10 @@ func (mgr *SessionMgr) GetSession(roomID string) *Session {
 		sess.(*Session).init(roomID, mgr)
 	}
 	return sess.(*Session)
+}
+
+func (mgr *SessionMgr) GetSessionServer(roomID string) http.Handler {
+	return websocket.Handler(mgr.GetSession(roomID).serve)
 }
 
 func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
@@ -78,11 +83,19 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 }
 
 func (sess *Session) getUpdate() *Update {
-	return &Update{
+	update := &Update{
 		FEN:       sess.game.FEN(),
 		WhiteMove: sess.whiteMove,
 		BlackMove: sess.blackMove,
 	}
+	switch sess.game.Outcome() {
+	case chess.NoOutcome:
+	case chess.Draw:
+		update.Message = "Draw"
+	default:
+		update.Message = "Checkmate"
+	}
+	return update
 }
 
 func (sess *Session) Move(san string, resp *bool) error {
@@ -108,37 +121,22 @@ func (sess *Session) Move(san string, resp *bool) error {
 	}
 
 	update := sess.getUpdate()
-	unused := false
-	switch sess.game.Outcome() {
-	case chess.NoOutcome:
-	case chess.Draw:
-		update.Message = "Draw"
-	default:
-		update.Message = "Checkmate"
-	}
 	for _, client := range sess.clients {
-		client.Call("Session.Update", update, &unused)
+		sess.updateClient(client, update)
 	}
 
 	*resp = true
 	return nil
 }
 
-func (sess *Session) serve(ws *websocket.Conn) {
-	client := jsonrpc.NewJsonRpc(ws)
-	client.Register(sess, "")
-
-	<-time.NewTimer(time.Second / 2).C // artificial delay just to show fancy loader
-
+func (sess *Session) addClient(client *jsonrpc.JsonRPC) {
 	sess.mtx.Lock()
-	sess.killTimer.Stop()
+	defer sess.mtx.Unlock()
 	sess.clients = append(sess.clients, client)
-	sess.mtx.Unlock()
+	sess.killTimer.Stop()
+}
 
-	var resp bool
-	go client.Call("Session.Update", sess.getUpdate(), &resp)
-	client.Serve()
-
+func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 	if len(sess.clients) == 1 {
@@ -152,6 +150,26 @@ func (sess *Session) serve(ws *websocket.Conn) {
 			return
 		}
 	}
+}
+
+func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
+	unused := false
+	client.Call("Session.Update", update, &unused)
+}
+
+func (sess *Session) serve(ws *websocket.Conn) {
+	client := jsonrpc.NewJsonRpc(ws)
+	client.Register(sess, "")
+
+	sess.addClient(client)
+
+	go func() {
+		<-time.NewTimer(time.Second / 2).C // artificial delay just to show fancy loader
+		sess.updateClient(client, sess.getUpdate())
+	}()
+	client.Serve()
+
+	sess.removeClient(client)
 }
 
 type Update struct {
