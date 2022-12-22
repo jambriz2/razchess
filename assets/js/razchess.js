@@ -6,6 +6,8 @@ var board = null;
 var $board = $('#board')
 var game = null;
 var squareClass = 'square-55d63'
+var wm = null;
+var bm = null;
 
 socket.onmessage = function(event) {
     jrpc.messageHandler(event.data);
@@ -36,14 +38,13 @@ jrpc.on('Session.Update', function(update) {
         board = Chessboard('board', config);
     }
     board.position(update.fen);
+    wm = update.wm;
+    bm = update.bm;
+    colorLastMoves();
 
-    $board.find('.' + squareClass).removeClass('highlight-white')
-    $board.find('.square-' + update.wm[0]).addClass('highlight-white')
-    $board.find('.square-' + update.wm[1]).addClass('highlight-white')
-
-    $board.find('.' + squareClass).removeClass('highlight-black')
-    $board.find('.square-' + update.bm[0]).addClass('highlight-black')
-    $board.find('.square-' + update.bm[1]).addClass('highlight-black')
+    if (update.msg) {
+        alert(update.msg)
+    }
 
     return true;
 })
@@ -55,12 +56,6 @@ function onDragStart (source, piece, position, orientation) {
         (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
         return false;
     }
-
-    /*if (game.turn() === 'w') {
-        $board.find('.' + squareClass).removeClass('highlight-white')
-    } else {
-        $board.find('.' + squareClass).removeClass('highlight-black')
-    }*/
 }
 
 function onDrop (source, target) {
@@ -79,6 +74,16 @@ function onDrop (source, target) {
     if (serverResponse == false) return 'snapback';
 }
 
+function colorLastMoves() {
+    $board.find('.' + squareClass).removeClass('highlight-white')
+    $board.find('.square-' + wm[0]).addClass('highlight-white')
+    $board.find('.square-' + wm[1]).addClass('highlight-white')
+
+    $board.find('.' + squareClass).removeClass('highlight-black')
+    $board.find('.square-' + bm[0]).addClass('highlight-black')
+    $board.find('.square-' + bm[1]).addClass('highlight-black')
+}
+
 var config = {
   draggable: true,
   onDragStart: onDragStart,
@@ -86,5 +91,8 @@ var config = {
 };
 
 $(window).resize(function(){
-    if (board) board.resize();
+    if (board) {
+        board.resize();
+        colorLastMoves();
+    }
 });

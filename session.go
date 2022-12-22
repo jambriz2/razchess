@@ -83,7 +83,6 @@ func (sess *Session) Move(san string, resp *bool) error {
 		*resp = false
 		return nil
 	}
-
 	if sess.game.Position().Board().Piece(move.S2()).Color() == chess.White {
 		sess.whiteMove[0] = move.S1().String()
 		sess.whiteMove[1] = move.S2().String()
@@ -91,9 +90,18 @@ func (sess *Session) Move(san string, resp *bool) error {
 		sess.blackMove[0] = move.S1().String()
 		sess.blackMove[1] = move.S2().String()
 	}
+
+	update := sess.getUpdate()
 	unused := false
+	switch sess.game.Outcome() {
+	case chess.NoOutcome:
+	case chess.Draw:
+		update.Message = "Draw"
+	default:
+		update.Message = "Checkmate"
+	}
 	for _, client := range sess.clients {
-		client.Call("Session.Update", sess.getUpdate(), &unused)
+		client.Call("Session.Update", update, &unused)
 	}
 
 	*resp = true
@@ -134,4 +142,5 @@ type Update struct {
 	FEN       string    `json:"fen"`
 	WhiteMove [2]string `json:"wm"`
 	BlackMove [2]string `json:"bm"`
+	Message   string    `json:"msg"`
 }
