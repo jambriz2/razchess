@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/net/websocket"
@@ -17,6 +18,10 @@ import (
 var assets embed.FS
 
 var puzzles []string
+
+func init() {
+	rand.Seed(time.Now().Unix())
+}
 
 func loadPuzzles() {
 	r, err := assets.Open("assets/chess-puzzles.fen")
