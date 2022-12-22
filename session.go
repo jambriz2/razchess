@@ -27,8 +27,8 @@ type Session struct {
 	mtx       sync.Mutex
 	roomID    string
 	game      *chess.Game
-	WhiteMove [2]string
-	BlackMove [2]string
+	whiteMove [2]string
+	blackMove [2]string
 	clients   []*jsonrpc.JsonRPC
 	killTimer *time.Timer
 }
@@ -48,6 +48,14 @@ func (sess *Session) init(roomID string) {
 	}()
 }
 
+func (sess *Session) getUpdate() *Update {
+	return &Update{
+		FEN:       sess.game.FEN(),
+		WhiteMove: sess.whiteMove,
+		BlackMove: sess.blackMove,
+	}
+}
+
 func (sess *Session) Move(san string, resp *bool) error {
 	log.Printf("[%s] %s", sess.roomID, san)
 
@@ -58,25 +66,21 @@ func (sess *Session) Move(san string, resp *bool) error {
 	if err != nil {
 		return err
 	}
-
 	if err := sess.game.Move(move); err != nil {
 		*resp = false
 		return nil
 	}
 
-	sess.WhiteMove[0] = move.S1().String()
-	sess.WhiteMove[1] = move.S2().String()
-
-	/*update := &Update{
-		FEN:       sess.game.FEN(),
-		WhiteMove: sess.WhiteMove,
-		BlackMove: sess.BlackMove,
-	}*/
-
-	fen := sess.game.FEN()
+	if sess.game.Position().Board().Piece(move.S2()).Color() == chess.White {
+		sess.whiteMove[0] = move.S1().String()
+		sess.whiteMove[1] = move.S2().String()
+	} else {
+		sess.blackMove[0] = move.S1().String()
+		sess.blackMove[1] = move.S2().String()
+	}
 	unused := false
 	for _, client := range sess.clients {
-		client.Call("Session.Update", fen, &unused)
+		client.Call("Session.Update", sess.getUpdate(), &unused)
 	}
 
 	*resp = true
@@ -87,7 +91,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 	client := jsonrpc.NewJsonRpc(ws)
 	client.Register(sess, "")
 
-	<-time.NewTimer(time.Second).C // artificial delay just to show fancy loader
+	<-time.NewTimer(time.Second / 2).C // artificial delay just to show fancy loader
 
 	sess.mtx.Lock()
 	sess.killTimer.Stop()
@@ -95,7 +99,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 	sess.mtx.Unlock()
 
 	var resp bool
-	go client.Call("Session.Update", sess.game.FEN(), &resp)
+	go client.Call("Session.Update", sess.getUpdate(), &resp)
 	client.Serve()
 
 	sess.mtx.Lock()
@@ -114,7 +118,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 }
 
 type Update struct {
-	FEN       string `json:"fen"`
-	WhiteMove [2]string
-	BlackMove [2]string
+	FEN       string    `json:"fen"`
+	WhiteMove [2]string `json:"wm"`
+	BlackMove [2]string `json:"bm"`
 }
