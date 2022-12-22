@@ -1,6 +1,6 @@
 var room = $('#roomID').val()
 var jrpc = new simple_jsonrpc();
-var socket = new WebSocket('ws://' + window.location.host + '/ws/' + room);
+var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + room);
 var config;
 var board = null;
 var $board = $('#board')
