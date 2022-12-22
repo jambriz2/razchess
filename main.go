@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"embed"
 	"flag"
 	"html/template"
 	"io/fs"
+	"math/rand"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -14,12 +16,31 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
+var puzzles []string
+
+func loadPuzzles() {
+	r, err := assets.Open("assets/chess-puzzles.fen")
+	if err != nil {
+		panic(err)
+	}
+	defer r.Close()
+
+	puzzles = make([]string, 0, 220)
+	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		puzzles = append(puzzles, scanner.Text())
+	}
+}
+
 func main() {
 	var mgr SessionMgr
 	var addr string
 	flag.DurationVar(&mgr.KillTimeout, "session-timeout", defaultKillTimeout, "session expiration time after all players left")
 	flag.StringVar(&addr, "addr", ":8080", "http listen address")
 	flag.Parse()
+
+	loadPuzzles()
 
 	assets, _ := fs.Sub(assets, "assets")
 
@@ -53,6 +74,16 @@ func main() {
 			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
 		}
 		roomID, err := mgr.NewCustomSession(customFEN)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Redirect(w, r, "/room/"+roomID, http.StatusTemporaryRedirect)
+		}
+	})
+
+	http.HandleFunc("/puzzle", func(w http.ResponseWriter, r *http.Request) {
+		puzzle := puzzles[rand.Intn(len(puzzles))]
+		roomID, err := mgr.NewCustomSession(puzzle)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		} else {
