@@ -10,40 +10,53 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const killTimeout = time.Hour
+const defaultKillTimeout = time.Hour
 
-var sessions sync.Map
 var sanDecoder chess.AlgebraicNotation
 
-func GetSession(roomID string) *Session {
-	sess, loaded := sessions.LoadOrStore(roomID, &Session{})
+type SessionMgr struct {
+	KillTimeout time.Duration
+	sessions    sync.Map
+}
+
+func (mgr *SessionMgr) GetSession(roomID string) *Session {
+	sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
 	if !loaded {
-		sess.(*Session).init(roomID)
+		sess.(*Session).init(roomID, mgr)
 	}
 	return sess.(*Session)
 }
 
-type Session struct {
-	mtx       sync.Mutex
-	roomID    string
-	game      *chess.Game
-	whiteMove [2]string
-	blackMove [2]string
-	clients   []*jsonrpc.JsonRPC
-	killTimer *time.Timer
+func (mgr *SessionMgr) killSession(roomID string) {
+	mgr.sessions.Delete(roomID)
 }
 
-func (sess *Session) init(roomID string) {
+type Session struct {
+	mtx         sync.Mutex
+	roomID      string
+	game        *chess.Game
+	whiteMove   [2]string
+	blackMove   [2]string
+	clients     []*jsonrpc.JsonRPC
+	killTimer   *time.Timer
+	killTimeout time.Duration
+}
+
+func (sess *Session) init(roomID string, mgr *SessionMgr) {
 	log.Printf("[new session: %s]", roomID)
 
 	sess.roomID = roomID
 	sess.game = chess.NewGame()
-	sess.killTimer = time.NewTimer(killTimeout)
+	sess.killTimeout = mgr.KillTimeout
+	if sess.killTimeout == 0 {
+		sess.killTimeout = defaultKillTimeout
+	}
+	sess.killTimer = time.NewTimer(sess.killTimeout)
 	sess.killTimer.Stop()
 
 	go func() {
 		<-sess.killTimer.C
-		sessions.Delete(sess.roomID)
+		mgr.killSession(sess.roomID)
 		log.Printf("[session expired: %s]", roomID)
 	}()
 }
@@ -106,7 +119,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 	defer sess.mtx.Unlock()
 	if len(sess.clients) == 1 {
 		sess.clients = nil
-		sess.killTimer.Reset(killTimeout)
+		sess.killTimer.Reset(sess.killTimeout)
 		return
 	}
 	for i, cl := range sess.clients {

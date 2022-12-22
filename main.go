@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"html/template"
 	"io/fs"
 	"net/http"
@@ -14,6 +15,12 @@ import (
 var assets embed.FS
 
 func main() {
+	var mgr SessionMgr
+	var addr string
+	flag.DurationVar(&mgr.KillTimeout, "session-timeout", defaultKillTimeout, "session expiration time after all players left")
+	flag.StringVar(&addr, "addr", ":8080", "http listen address")
+	flag.Parse()
+
 	assets, _ := fs.Sub(assets, "assets")
 
 	indexRaw, err := fs.ReadFile(assets, "index.html")
@@ -40,7 +47,7 @@ func main() {
 
 	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[4:]
-		websocket.Handler(GetSession(roomID).serve).ServeHTTP(w, r)
+		websocket.Handler(mgr.GetSession(roomID).serve).ServeHTTP(w, r)
 	})
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(addr, nil)
 }
