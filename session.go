@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/balu-/jsonrpc"
+	"github.com/google/uuid"
 	"github.com/notnil/chess"
 	"golang.org/x/net/websocket"
 )
@@ -27,6 +28,22 @@ func (mgr *SessionMgr) GetSession(roomID string) *Session {
 	return sess.(*Session)
 }
 
+func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
+	customFEN, err := chess.FEN(fen)
+	if err != nil {
+		return "", err
+	}
+	for {
+		roomID := "custom-" + uuid.NewString()
+		sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
+		if !loaded {
+			sess := sess.(*Session)
+			sess.init(roomID, mgr, customFEN)
+			return roomID, nil
+		}
+	}
+}
+
 func (mgr *SessionMgr) killSession(roomID string) {
 	mgr.sessions.Delete(roomID)
 }
@@ -42,17 +59,16 @@ type Session struct {
 	killTimeout time.Duration
 }
 
-func (sess *Session) init(roomID string, mgr *SessionMgr) {
+func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess.Game)) {
 	log.Printf("[new session: %s]", roomID)
 
 	sess.roomID = roomID
-	sess.game = chess.NewGame()
+	sess.game = chess.NewGame(options...)
 	sess.killTimeout = mgr.KillTimeout
 	if sess.killTimeout == 0 {
 		sess.killTimeout = defaultKillTimeout
 	}
 	sess.killTimer = time.NewTimer(sess.killTimeout)
-	sess.killTimer.Stop()
 
 	go func() {
 		<-sess.killTimer.C

@@ -47,6 +47,19 @@ func main() {
 		index.Execute(w, roomID)
 	})
 
+	http.HandleFunc("/fen/", func(w http.ResponseWriter, r *http.Request) {
+		customFEN := r.URL.Path[5:]
+		if len(customFEN) == 0 {
+			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
+		}
+		roomID, err := mgr.NewCustomSession(customFEN)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		} else {
+			http.Redirect(w, r, "/room/"+roomID, http.StatusTemporaryRedirect)
+		}
+	})
+
 	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[4:]
 		websocket.Handler(mgr.GetSession(roomID).serve).ServeHTTP(w, r)
