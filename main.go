@@ -35,13 +35,15 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.Path) <= 1 {
-			roomID := uuid.NewString()
-			http.Redirect(w, r, "/room/"+roomID, http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
 		}
 	})
 
 	http.HandleFunc("/room/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[6:]
+		if len(roomID) == 0 {
+			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
+		}
 		index.Execute(w, roomID)
 	})
 
