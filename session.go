@@ -17,8 +17,38 @@ const defaultKillTimeout = time.Hour
 var sanDecoder chess.AlgebraicNotation
 
 type SessionMgr struct {
-	KillTimeout time.Duration
+	killTimeout time.Duration
 	sessions    sync.Map
+	db          *DB
+}
+
+func NewSessionMgr(redisURL string, killTimeout time.Duration) *SessionMgr {
+	if killTimeout == 0 {
+		killTimeout = defaultKillTimeout
+	}
+	mgr := &SessionMgr{
+		killTimeout: killTimeout,
+	}
+	if len(redisURL) > 0 {
+		db, err := NewDB(redisURL)
+		if err != nil {
+			log.Println("Redis error:", err)
+		} else {
+			for roomID, fen := range db.LoadSessions() {
+				customFEN, err := chess.FEN(fen)
+				if err != nil {
+					log.Println("FEN error:", err)
+					continue
+				}
+				sess := &Session{}
+				sess.init(roomID, mgr, customFEN)
+				mgr.sessions.Store(roomID, sess)
+				log.Printf("[Session loaded from persistent storage: %s]", roomID)
+			}
+			mgr.db = db
+		}
+	}
+	return mgr
 }
 
 func (mgr *SessionMgr) GetSession(roomID string) *Session {
@@ -49,6 +79,12 @@ func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
 	}
 }
 
+func (mgr *SessionMgr) updateSession(roomID, fen string) {
+	if mgr.db != nil {
+		mgr.db.SaveSession(roomID, fen, mgr.killTimeout)
+	}
+}
+
 func (mgr *SessionMgr) killSession(roomID string) {
 	mgr.sessions.Delete(roomID)
 }
@@ -62,6 +98,7 @@ type Session struct {
 	clients     []*jsonrpc.JsonRPC
 	killTimer   *time.Timer
 	killTimeout time.Duration
+	updater     func(fen string)
 }
 
 func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess.Game)) {
@@ -69,11 +106,11 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 
 	sess.roomID = roomID
 	sess.game = chess.NewGame(options...)
-	sess.killTimeout = mgr.KillTimeout
-	if sess.killTimeout == 0 {
-		sess.killTimeout = defaultKillTimeout
-	}
+	sess.killTimeout = mgr.killTimeout
 	sess.killTimer = time.NewTimer(sess.killTimeout)
+	sess.updater = func(fen string) {
+		mgr.updateSession(roomID, sess.game.FEN())
+	}
 
 	go func() {
 		<-sess.killTimer.C
@@ -120,6 +157,7 @@ func (sess *Session) Move(san string, resp *bool) error {
 		sess.blackMove[1] = move.S2().String()
 	}
 
+	go sess.updater(sess.game.FEN())
 	update := sess.getUpdate()
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
