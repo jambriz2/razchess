@@ -157,7 +157,7 @@ var game = null;
 rpc.onUpdate(function(update) {
     $('#loading').hide();
     $('#board').show();
-    game = new Game(rpc, update);
+    game = new Game(rpc);
     game.onUpdate(infoBar.update);
     game.update(update);
 })
