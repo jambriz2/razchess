@@ -1,4 +1,4 @@
-package main
+package razchess
 
 import (
 	"log"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const defaultKillTimeout = time.Hour
+const DefaultKillTimeout = time.Hour
 
 var sanDecoder chess.AlgebraicNotation
 
@@ -24,7 +24,7 @@ type SessionMgr struct {
 
 func NewSessionMgr(redisURL string, killTimeout time.Duration) *SessionMgr {
 	if killTimeout == 0 {
-		killTimeout = defaultKillTimeout
+		killTimeout = DefaultKillTimeout
 	}
 	mgr := &SessionMgr{
 		killTimeout: killTimeout,

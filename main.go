@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/razzie/razchess/pkg/razchess"
 )
 
 //go:embed assets/*
@@ -34,13 +36,13 @@ func main() {
 	var killTimeout time.Duration
 	var addr string
 	flag.StringVar(&redisURL, "redis", "", "Redis connection string (redis://user:pass@host:port)")
-	flag.DurationVar(&killTimeout, "session-timeout", defaultKillTimeout, "session expiration time after all players left")
+	flag.DurationVar(&killTimeout, "session-timeout", razchess.DefaultKillTimeout, "session expiration time after all players left")
 	flag.StringVar(&addr, "addr", ":8080", "http listen address")
 	flag.Parse()
 
 	assets, _ := fs.Sub(assets, "assets")
-	mgr := NewSessionMgr(redisURL, killTimeout)
-	srv := NewServer(assets, mgr, loadPuzzles())
+	mgr := razchess.NewSessionMgr(redisURL, killTimeout)
+	srv := razchess.NewServer(assets, mgr, loadPuzzles())
 
 	log.Println("[RazChess server started]")
 	http.ListenAndServe(addr, srv)
