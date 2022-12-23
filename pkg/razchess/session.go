@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/balu-/jsonrpc"
 	"github.com/google/uuid"
 	"github.com/notnil/chess"
+	"github.com/razzie/jsonrpc"
 	"golang.org/x/net/websocket"
 )
 

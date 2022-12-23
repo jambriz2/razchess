@@ -22,42 +22,35 @@ type clientResponse struct {
 	parent *JsonRPC
 }
 
-func (r *clientResponse) reset() {
-	r.Id = 0
-	r.Result = nil
-	r.Error = nil
-}
-
 func (r *clientResponse) handle() (err error) {
-	if DEBUG_PRINT { //debug
+	if DEBUG_PRINT {
 		fmt.Println("handling")
 	}
 	r.parent.clmu.RLock()
 	call, ok := r.parent.pendingCalls[r.Id]
 	r.parent.clmu.RUnlock()
 	if !ok {
-		if DEBUG_PRINT { //debug
-			fmt.Printf("Id not found %s\n", r.Id)
+		if DEBUG_PRINT {
+			fmt.Printf("Id not found %d\n", r.Id)
 			fmt.Println(r.parent.pendingCalls)
 		}
-		return fmt.Errorf("Response not recognized: %n\n", r.Id)
+		return fmt.Errorf("response not recognized: %d", r.Id)
 	}
 	if r.Result == nil {
-		if DEBUG_PRINT { //debug
+		if DEBUG_PRINT {
 			fmt.Println("err r.Result = nil")
 		}
 		return errors.New("nil exit")
 	}
 
-	if DEBUG_PRINT { //debug
-		fmt.Printf("r.result: %s\n", r.Result)
+	if DEBUG_PRINT {
+		fmt.Printf("r.result: %v\n", r.Result)
 		fmt.Printf("call.Reply %s\n", call.Reply)
 	}
 	err = json.Unmarshal(*r.Result, call.Reply)
 	//set request as done
 	call.Done <- call
 	return
-	//call.Reply = json.Unmarshal(r.Result, call.Reply)
 }
 
 type Call struct {
@@ -101,12 +94,12 @@ func (j *JsonRPC) Call(serviceMethod string, params interface{}, result interfac
 	j.clmu.Unlock()
 
 	err := call.send()
-	//wenn fehlerfrei dann warten
+	//if no errors then wait
 	if err == nil {
 		<-done
 		result = call.Reply
 	} else {
-		fmt.Println("FEHLER error " + err.Error())
+		fmt.Println("rpc: call error:", err.Error())
 	}
 	//clear the call
 	j.clmu.Lock()
@@ -120,10 +113,8 @@ func (c *Call) send() error {
 	req := new(clientRequest)
 	req.Id = c.Seq
 	req.Method = c.ServiceMethod
-	//req.Params
 	req.Params[0] = c.Args
 	// Encode and send the request.
-	//check for nil
 	if c == nil {
 		fmt.Println("error c = nil")
 		return errors.New("c = nil")

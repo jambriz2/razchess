@@ -7,14 +7,13 @@ import (
 	"io"
 	"log"
 	"reflect"
+	"strings"
 	"sync"
 )
 
 const (
 	DEBUG_PRINT = false
 )
-
-var null = json.RawMessage([]byte("null"))
 
 // Precompute the reflect type for error.  Can't use error directly
 // because Typeof takes an empty interface value.  This is annoying.
@@ -57,9 +56,9 @@ func (j *jsonMessage) getResponse(parent *JsonRPC) *clientResponse {
 	resp := new(clientResponse)
 	resp.Error = j.Error
 	err := json.Unmarshal(*j.Id, &resp.Id)
-	if DEBUG_PRINT { //debug?
+	if DEBUG_PRINT {
 		if err != nil {
-			fmt.Println("fataler fehler id parsing: " + err.Error())
+			fmt.Println("error parsing Id: " + err.Error())
 		} else {
 			fmt.Printf("Response ID : %d", resp.Id)
 		}
@@ -70,13 +69,29 @@ func (j *jsonMessage) getResponse(parent *JsonRPC) *clientResponse {
 	return resp
 }
 
+func (j *jsonMessage) String() string {
+	var b strings.Builder
+	b.WriteString("MSG: Method: " + j.Method)
+	if j.Result != nil {
+		b.WriteString(" | Result: " + string(*j.Result))
+	}
+	if j.Error != nil {
+		b.WriteString(" | Error: " + string(*j.Error))
+	}
+	if j.Params != nil {
+		b.WriteString(" | Params: " + string(*j.Params))
+	}
+	if j.Id != nil {
+		b.WriteString(" | Id: " + string(*j.Id))
+	}
+	return b.String()
+}
+
 // structs for reflection
 type methodType struct {
-	//	sync.Mutex // protects counters
 	method    reflect.Method
 	ArgType   reflect.Type
 	ReplyType reflect.Type
-	//	numCalls   uint
 }
 
 type service struct {
@@ -166,10 +181,9 @@ func (j *JsonRPC) Register(rcvr interface{}, name string) error {
 		return errors.New(str)
 	}
 
-	//finaly realy register
+	//finally really register
 	j.serviceMap[s.name] = s
 
-	//debug print
 	if DEBUG_PRINT {
 		for k, v := range j.serviceMap {
 			fmt.Println("Registriert " + k + " | " + v.name + " | ")
@@ -191,11 +205,11 @@ func (j *JsonRPC) Serve() {
 	for {
 		err := j.dec.Decode(msg)
 		if err == nil {
-			if DEBUG_PRINT { //debug
-				fmt.Printf("MSG: Method: %s | Res: %s | Param: %s | ID: %s\n", msg.Method, msg.Result, msg.Params, msg.Id)
+			if DEBUG_PRINT {
+				fmt.Println(msg.String())
 			}
 			if msg.isResponse() {
-				if DEBUG_PRINT { //debug
+				if DEBUG_PRINT {
 					fmt.Println("Client Response")
 				}
 				//build response + handle
@@ -203,21 +217,21 @@ func (j *JsonRPC) Serve() {
 				resp.handle()
 
 			} else if msg.isRequest() {
-				if DEBUG_PRINT { //debug
+				if DEBUG_PRINT {
 					fmt.Println("Server Request")
 				}
 				//build request + handle
 				req := msg.getRequest(j)
 				req.handle()
 
-			} else {
-				if DEBUG_PRINT { //debug
-					fmt.Println("WTF wrong format")
-				}
+			} else if !DEBUG_PRINT {
+				fmt.Println("wrong message format: ", msg.String())
 			}
 
 		} else {
-			fmt.Errorf("Ups")
+			if err != io.EOF {
+				fmt.Println("msg decode error:", err)
+			}
 			break
 		}
 		msg.reset()

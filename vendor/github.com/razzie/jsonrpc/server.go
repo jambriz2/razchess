@@ -22,17 +22,10 @@ type serverRequest struct {
 	parent *JsonRPC
 }
 
-func (r *serverRequest) reset() {
-	r.Method = ""
-	r.Params = nil
-	r.Id = nil
-}
-
 /*
 Parse Request to retrieve Service and Method
 */
 func (r *serverRequest) parseRequestHeader() (service *service, mtype *methodType, err error) {
-	//(service *service, mtype *methodType, req *Request, keepReading bool, err error)
 	dot := strings.LastIndex(r.Method, ".")
 
 	if dot < 0 {
@@ -81,7 +74,6 @@ func (s *serverRequest) parseRequest() (service *service, mtype *methodType, arg
 	if err != nil {
 		return
 	}
-	//Decode kram
 	// Decode the argument value.
 	argIsValue := false // if true, need to indirect before calling.
 	if mtype.ArgType.Kind() == reflect.Ptr {
@@ -91,7 +83,6 @@ func (s *serverRequest) parseRequest() (service *service, mtype *methodType, arg
 		argIsValue = true
 	} // argv guaranteed to be a pointer now.
 
-	//todo
 	if err = s.parseRequestBody(argv.Interface()); err != nil {
 		return
 	}
@@ -103,11 +94,10 @@ func (s *serverRequest) parseRequest() (service *service, mtype *methodType, arg
 }
 
 func (r *serverRequest) handle() {
-	if DEBUG_PRINT { //debug
+	if DEBUG_PRINT {
 		fmt.Println("handle Request")
 	}
 	service, mtype, argv, replyv, err := r.parseRequest()
-	//service, mtype, req, argv, replyv, keepReading, err := server.readRequest(codec)
 	if err != nil {
 		if err != io.EOF {
 			log.Println("rpc:", err)
@@ -116,13 +106,11 @@ func (r *serverRequest) handle() {
 		//send error
 		if r.Id != nil {
 			r.sendResponse(invalidRequest, err.Error())
-			//server.freeRequest(req)
 		}
 		return
 	}
 	go r.call(service, mtype, argv, replyv)
-	//go service.call(server, sending, mtype, req, argv, replyv, codec)
-	if DEBUG_PRINT { //debug
+	if DEBUG_PRINT {
 		fmt.Println("DO CALL")
 	}
 }
@@ -132,9 +120,8 @@ func (r *serverRequest) handle() {
 // contains an error when it is used.
 var invalidRequest = struct{}{}
 
-//todo add mutex for sending
 func (r *serverRequest) sendResponse(reply interface{}, errmsg string) error {
-	if DEBUG_PRINT { //debug
+	if DEBUG_PRINT {
 		fmt.Println("Send Response")
 	}
 	resp := new(serverResponse)
@@ -163,9 +150,6 @@ type serverResponse struct {
 }
 
 func (r *serverRequest) call(service *service, mtype *methodType, argv, replyv reflect.Value) {
-	//	mtype.Lock()
-	//	mtype.numCalls++
-	//	mtype.Unlock()
 	function := mtype.method.Func
 	// Invoke the method, providing a new value for the reply.
 	returnValues := function.Call([]reflect.Value{service.rcvr, argv, replyv})
@@ -176,7 +160,6 @@ func (r *serverRequest) call(service *service, mtype *methodType, argv, replyv r
 		errmsg = errInter.(error).Error()
 	}
 	r.sendResponse(replyv.Interface(), errmsg)
-	//server.freeRequest(req)
 }
 
 // suitableMethods returns suitable Rpc methods of typ, it will report
