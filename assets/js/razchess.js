@@ -66,7 +66,10 @@ class Game {
         rpc.onUpdate(function(update) {
             instance.update(update);
         })
-        $(window).resize(this.board.resize);
+        $(window).resize(function() {
+            instance.board.resize();
+            instance.colorLastMoves();
+        });
     }
 
     getBoardConfig() {
