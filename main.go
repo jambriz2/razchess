@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/razzie/razchess/pkg/razchess"
@@ -15,34 +16,38 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
-func loadPuzzles() []string {
-	r, err := assets.Open("assets/chess-puzzles.fen")
+func loadPuzzles(filename string) (puzzles []string) {
+	if len(filename) == 0 {
+		return
+	}
+	r, err := os.Open(filename)
 	if err != nil {
-		panic(err)
+		log.Println("failed to load puzzles:", err)
+		return
 	}
 	defer r.Close()
-
-	puzzles := make([]string, 0, 220)
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
 		puzzles = append(puzzles, scanner.Text())
 	}
-	return puzzles
+	return
 }
 
 func main() {
 	var redisURL string
 	var killTimeout time.Duration
+	var puzzlesFilename string
 	var addr string
-	flag.StringVar(&redisURL, "redis", "", "Redis connection string (redis://user:pass@host:port)")
-	flag.DurationVar(&killTimeout, "session-timeout", razchess.DefaultKillTimeout, "session expiration time after all players left")
-	flag.StringVar(&addr, "addr", ":8080", "http listen address")
+	flag.StringVar(&redisURL, "redis", "", "Optional Redis connection string (redis://user:pass@host:port)")
+	flag.DurationVar(&killTimeout, "session-timeout", razchess.DefaultKillTimeout, "Session expiration time after all players left")
+	flag.StringVar(&puzzlesFilename, "puzzles", "", "Optional location of external puzzles (newline separated list of FEN strings)")
+	flag.StringVar(&addr, "addr", ":8080", "Http listen address")
 	flag.Parse()
 
 	assets, _ := fs.Sub(assets, "assets")
 	mgr := razchess.NewSessionMgr(redisURL, killTimeout)
-	srv := razchess.NewServer(assets, mgr, loadPuzzles())
+	srv := razchess.NewServer(assets, mgr, loadPuzzles(puzzlesFilename))
 
 	log.Println("[RazChess server started]")
 	http.ListenAndServe(addr, srv)

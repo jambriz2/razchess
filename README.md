@@ -24,9 +24,11 @@
 ```
 Usage of razchess:
   -addr string
-        http listen address (default ":8080")
+        Http listen address (default ":8080")
+  -puzzles string
+        Optional location of external puzzles (newline separated list of FEN strings)
   -redis string
-        Redis connection string (redis://user:pass@host:port)
+        Optional Redis connection string (redis://user:pass@host:port)
   -session-timeout duration
-        session expiration time after all players left (default 1h0m0s)
+        Session expiration time after all players left (default 1h0m0s)
 ```

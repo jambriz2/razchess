@@ -30,6 +30,10 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		index: template.Must(template.New("").Parse(string(indexRaw))),
 	}
 
+	if len(puzzles) == 0 {
+		puzzles = GetInternalPuzzles()
+	}
+
 	srv.Handle("/img/", http.FileServer(http.FS(assets)))
 	srv.Handle("/css/", http.FileServer(http.FS(assets)))
 	srv.Handle("/js/", http.FileServer(http.FS(assets)))
