@@ -89,7 +89,7 @@ class Game {
     getStatus() {
         var moveColor = (this.logic.turn() === 'w' ? 'White' : 'Black')
         if (this.logic.in_checkmate()) {
-          return 'Game over, ' + moveColor + ' is in checkmate.'
+          return 'Game over, ' + moveColor + ' is in checkmate'
         }
         else if (this.logic.in_draw()) {
           return 'Game over, drawn position'
