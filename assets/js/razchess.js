@@ -6,6 +6,7 @@ class RPC {
             jrpc.messageHandler(event.data);
         };
         jrpc.toStream = function(_msg){
+            //if (socket.readyState == 3) location.reload(); // closed socket
             socket.send(_msg);
         };
         socket.onerror = function(error) {
@@ -13,6 +14,7 @@ class RPC {
         };
         socket.onclose = function(event) {
             console.info('close code : ' + event.code + ' reason: ' + event.reason + ' clean: ' + event.wasClean);
+            location.reload();
         };
         this.jrpc = jrpc;
     }
