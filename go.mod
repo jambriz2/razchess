@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/google/uuid v1.3.0
 	github.com/notnil/chess v1.9.0
 	github.com/razzie/jsonrpc v0.0.0-20221223162308-de029c6ea229
 	golang.org/x/net v0.4.0

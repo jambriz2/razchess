@@ -6,8 +6,6 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 func init() {
@@ -32,14 +30,14 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 
 	srv.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.Path) <= 1 {
-			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/room/"+GenerateID(6), http.StatusTemporaryRedirect)
 		}
 	})
 
 	srv.HandleFunc("/room/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[6:]
 		if len(roomID) == 0 {
-			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/room/"+GenerateID(6), http.StatusTemporaryRedirect)
 		}
 		index.Execute(w, roomID)
 	})
@@ -47,7 +45,7 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 	srv.HandleFunc("/fen/", func(w http.ResponseWriter, r *http.Request) {
 		customFEN := r.URL.Path[5:]
 		if len(customFEN) == 0 {
-			http.Redirect(w, r, "/room/"+uuid.NewString(), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, "/room/"+GenerateID(6), http.StatusTemporaryRedirect)
 		}
 		roomID, err := mgr.NewCustomSession(customFEN)
 		if err != nil {

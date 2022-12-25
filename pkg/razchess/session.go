@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/notnil/chess"
 	"github.com/razzie/jsonrpc"
 	"golang.org/x/net/websocket"
@@ -69,7 +68,7 @@ func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
 		return "", err
 	}
 	for {
-		roomID := "custom-" + uuid.NewString()
+		roomID := "custom-" + GenerateID(6)
 		sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
 		if !loaded {
 			sess := sess.(*Session)
