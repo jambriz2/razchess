@@ -124,13 +124,6 @@ func (sess *Session) getUpdate() *Update {
 		WhiteMove: sess.whiteMove,
 		BlackMove: sess.blackMove,
 	}
-	switch sess.game.Outcome() {
-	case chess.NoOutcome:
-	case chess.Draw:
-		update.Message = "Draw"
-	default:
-		update.Message = "Checkmate"
-	}
 	return update
 }
 
@@ -213,5 +206,4 @@ type Update struct {
 	FEN       string    `json:"fen"`
 	WhiteMove [2]string `json:"wm"`
 	BlackMove [2]string `json:"bm"`
-	Message   string    `json:"msg"`
 }
