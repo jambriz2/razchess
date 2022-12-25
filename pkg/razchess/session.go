@@ -97,7 +97,35 @@ type Session struct {
 	clients     []*jsonrpc.JsonRPC
 	killTimer   *time.Timer
 	killTimeout time.Duration
-	updater     func(fen string)
+	dbUpdater   func(fen string)
+}
+
+// Session.Move is the only exposed RPC function
+func (sess *Session) Move(san string, validMove *bool) error {
+	log.Printf("[%s] %s", sess.roomID, san)
+
+	sess.mtx.Lock()
+	defer sess.mtx.Unlock()
+
+	*validMove = sess.handleMove(san)
+	if !*validMove {
+		return nil
+	}
+	sess.updateClients()
+
+	for i := 0; i < 10; i++ { // limit auto moves
+		validNextMoves := sess.game.ValidMoves()
+		if len(validNextMoves) != 1 {
+			break
+		}
+		<-time.NewTimer(time.Second / 2).C
+		sess.handleMove(sanDecoder.Encode(sess.game.Position(), validNextMoves[0]))
+		sess.updateClients()
+	}
+
+	go sess.dbUpdater(sess.game.FEN())
+
+	return nil
 }
 
 func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess.Game)) {
@@ -107,7 +135,7 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 	sess.game = chess.NewGame(options...)
 	sess.killTimeout = mgr.killTimeout
 	sess.killTimer = time.NewTimer(sess.killTimeout)
-	sess.updater = func(fen string) {
+	sess.dbUpdater = func(fen string) {
 		mgr.updateSession(roomID, sess.game.FEN())
 	}
 
@@ -127,19 +155,13 @@ func (sess *Session) getUpdate() *Update {
 	return update
 }
 
-func (sess *Session) Move(san string, resp *bool) error {
-	log.Printf("[%s] %s", sess.roomID, san)
-
-	sess.mtx.Lock()
-	defer sess.mtx.Unlock()
-
+func (sess *Session) handleMove(san string) bool {
 	move, err := sanDecoder.Decode(sess.game.Position(), san)
 	if err != nil {
-		return err
+		return false
 	}
 	if err := sess.game.Move(move); err != nil {
-		*resp = false
-		return nil
+		return false
 	}
 	if sess.game.Position().Board().Piece(move.S2()).Color() == chess.White {
 		sess.whiteMove[0] = move.S1().String()
@@ -148,15 +170,14 @@ func (sess *Session) Move(san string, resp *bool) error {
 		sess.blackMove[0] = move.S1().String()
 		sess.blackMove[1] = move.S2().String()
 	}
+	return true
+}
 
-	go sess.updater(sess.game.FEN())
+func (sess *Session) updateClients() {
 	update := sess.getUpdate()
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
 	}
-
-	*resp = true
-	return nil
 }
 
 func (sess *Session) addClient(client *jsonrpc.JsonRPC) {
