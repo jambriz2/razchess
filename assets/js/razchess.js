@@ -1,8 +1,7 @@
 class RPC {
-    constructor() {
+    constructor(roomID) {
         var jrpc = new simple_jsonrpc();
-        var room = $('#roomID').val()
-        var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + room);
+        var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + roomID);
         socket.onmessage = function(event) {
             jrpc.messageHandler(event.data);
         };
@@ -34,32 +33,11 @@ class RPC {
     }
 }
 
-class InfoBar {
-    constructor() {
-        $('#infoBtn').click(function() {
-            $('#infoBar').toggle();
-        });        
-    }
-
-    update(status, wm, bm, fen) {
-        var html = '<span>FEN: ' + fen + '</span><br />' + status;
-        if (wm && wm[0].length > 0) {
-            html += ' | ⚪ ' + wm[0] + '→' + wm[1];
-        }
-        if (bm && bm[0].length > 0) {
-            html += ' | ⚫ ' + bm[0] + '→' + bm[1];
-        }
-        html += ' | <a href="/puzzle" target="_blank">Play a puzzle?</a>'
-        $('#infoBar').html(html);
-        document.title = status + ' - RazChess'
-    }
-}
-
 class Game {
-    constructor(rpc) {
+    constructor(rpc, boardID) {
         this.rpc = rpc;
         this.logic = new Chess();
-        this.board = Chessboard('board', this.getBoardConfig());
+        this.board = Chessboard(boardID, this.getBoardConfig());
         this.wm = null;
         this.bm = null;
         var instance = this;
@@ -153,14 +131,37 @@ class Game {
     }
 }
 
-var rpc = new RPC();
-var infoBar = new InfoBar();
-var game = null;
+class InfoBar {
+    constructor() {
+        $('#infoBtn').click(function() {
+            $('#infoBar').toggle();
+        });        
+    }
 
+    update(status, wm, bm, fen) {
+        var html = '<span>';
+        html += '<a href="#" onClick="navigator.clipboard.writeText(\'' + fen + '\'); return false;">Copy FEN to clipboard</a>';
+        html += ' | <a href="/fen/' + fen + '" target="_blank">Clone session</a>'
+        html += ' | <a href="/puzzle" target="_blank">Play a puzzle</a>';
+        html += '</span>'
+        html += '<br />' + status
+        if (wm && wm[0].length > 0) {
+            html += ' | ⚪ ' + wm[0] + '→' + wm[1];
+        }
+        if (bm && bm[0].length > 0) {
+            html += ' | ⚫ ' + bm[0] + '→' + bm[1];
+        }
+        $('#infoBar').html(html);
+        document.title = status + ' - RazChess'
+    }
+}
+
+var rpc = new RPC($('#roomID').val());
+var infoBar = new InfoBar();
 rpc.onUpdate(function(update) {
     $('#loading').hide();
     $('#board').show();
-    game = new Game(rpc);
+    game = new Game(rpc, 'board');
     game.onUpdate(infoBar.update);
     game.update(update);
 })
