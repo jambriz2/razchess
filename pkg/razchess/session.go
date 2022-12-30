@@ -205,7 +205,7 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
 	unused := false
-	client.Call("Session.Update", update, &unused)
+	go client.Call("Session.Update", update, &unused)
 }
 
 func (sess *Session) serve(ws *websocket.Conn) {
