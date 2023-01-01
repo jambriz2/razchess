@@ -68,6 +68,10 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 		mgr.killSession(sess.roomID)
 		log.Printf("[session expired: %s]", roomID)
 	}()
+
+	if sess.isCustom {
+		go sess.dbUpdater()
+	}
 }
 
 func (sess *Session) handleMove(san string) bool {
