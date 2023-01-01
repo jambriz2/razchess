@@ -2,7 +2,6 @@ package razchess
 
 import (
 	"log"
-	"net/http"
 	"sync"
 	"time"
 
@@ -11,89 +10,12 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const DefaultKillTimeout = time.Hour
-
 var sanDecoder chess.AlgebraicNotation
-
-type SessionMgr struct {
-	killTimeout time.Duration
-	sessions    sync.Map
-	db          *DB
-}
-
-func NewSessionMgr(redisURL string, killTimeout time.Duration) *SessionMgr {
-	if killTimeout == 0 {
-		killTimeout = DefaultKillTimeout
-	}
-	mgr := &SessionMgr{
-		killTimeout: killTimeout,
-	}
-	if len(redisURL) > 0 {
-		db, err := NewDB(redisURL)
-		if err != nil {
-			log.Println("Redis error:", err)
-		} else {
-			for roomID, fen := range db.LoadSessions() {
-				customFEN, err := chess.FEN(fen)
-				if err != nil {
-					log.Println("FEN error:", err)
-					continue
-				}
-				sess := &Session{}
-				sess.init(roomID, mgr, customFEN)
-				mgr.sessions.Store(roomID, sess)
-				log.Printf("[Session loaded from persistent storage: %s]", roomID)
-			}
-			mgr.db = db
-		}
-	}
-	return mgr
-}
-
-func (mgr *SessionMgr) GetSession(roomID string) *Session {
-	sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
-	if !loaded {
-		sess.(*Session).init(roomID, mgr)
-	}
-	return sess.(*Session)
-}
-
-func (mgr *SessionMgr) GetSessionServer(roomID string) http.Handler {
-	return websocket.Handler(mgr.GetSession(roomID).serve)
-}
-
-func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
-	customFEN, err := chess.FEN(fen)
-	if err != nil {
-		return "", err
-	}
-	for {
-		roomID := "custom-" + GenerateID(6)
-		sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
-		if !loaded {
-			sess := sess.(*Session)
-			sess.init(roomID, mgr, customFEN)
-			return roomID, nil
-		}
-	}
-}
-
-func (mgr *SessionMgr) updateSession(roomID, fen string) {
-	if mgr.db != nil {
-		mgr.db.SaveSession(roomID, fen, mgr.killTimeout)
-	}
-}
-
-func (mgr *SessionMgr) killSession(roomID string) {
-	mgr.sessions.Delete(roomID)
-}
 
 type Session struct {
 	mtx         sync.Mutex
 	roomID      string
 	game        *chess.Game
-	whiteMove   [2]string
-	blackMove   [2]string
 	clients     []*jsonrpc.JsonRPC
 	killTimer   *time.Timer
 	killTimeout time.Duration
@@ -146,15 +68,6 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 	}()
 }
 
-func (sess *Session) getUpdate() *Update {
-	update := &Update{
-		FEN:       sess.game.FEN(),
-		WhiteMove: sess.whiteMove,
-		BlackMove: sess.blackMove,
-	}
-	return update
-}
-
 func (sess *Session) handleMove(san string) bool {
 	move, err := sanDecoder.Decode(sess.game.Position(), san)
 	if err != nil {
@@ -163,21 +76,7 @@ func (sess *Session) handleMove(san string) bool {
 	if err := sess.game.Move(move); err != nil {
 		return false
 	}
-	if sess.game.Position().Board().Piece(move.S2()).Color() == chess.White {
-		sess.whiteMove[0] = move.S1().String()
-		sess.whiteMove[1] = move.S2().String()
-	} else {
-		sess.blackMove[0] = move.S1().String()
-		sess.blackMove[1] = move.S2().String()
-	}
 	return true
-}
-
-func (sess *Session) updateClients() {
-	update := sess.getUpdate()
-	for _, client := range sess.clients {
-		sess.updateClient(client, update)
-	}
 }
 
 func (sess *Session) addClient(client *jsonrpc.JsonRPC) {
@@ -207,13 +106,20 @@ func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
 	client.Notify("Session.Update", update)
 }
 
+func (sess *Session) updateClients() {
+	update := newUpdate(sess.game)
+	for _, client := range sess.clients {
+		sess.updateClient(client, update)
+	}
+}
+
 func (sess *Session) serve(ws *websocket.Conn) {
 	client := jsonrpc.NewJsonRpc(ws)
 	client.Register(sess, "")
 
 	sess.addClient(client)
 
-	sess.updateClient(client, sess.getUpdate())
+	sess.updateClient(client, newUpdate(sess.game))
 	client.Serve()
 
 	sess.removeClient(client)
