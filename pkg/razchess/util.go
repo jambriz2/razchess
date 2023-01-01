@@ -35,15 +35,24 @@ func GenerateID(length int) string {
 	}
 }
 
-func parseGame(game string) (func(*chess.Game), error) {
+func parseGame(game string) (opts []func(*chess.Game), isCustom bool, err error) {
+	var opt func(*chess.Game)
 	switch {
+	case len(game) == 0:
+		// do nothing
 	case strings.HasPrefix(game, "fen:"):
-		return chess.FEN(game[4:])
+		opt, err = chess.FEN(game[4:])
+		isCustom = true
 	case strings.HasPrefix(game, "pgn:"):
-		return chess.PGN(strings.NewReader(game[4:]))
+		opt, err = chess.PGN(strings.NewReader(game[4:]))
 	default:
-		return chess.FEN(game)
+		opt, err = chess.FEN(game)
+		isCustom = true
 	}
+	if opt != nil {
+		opts = []func(*chess.Game){opt}
+	}
+	return
 }
 
 func gameToString(game *chess.Game, customGame bool) string {

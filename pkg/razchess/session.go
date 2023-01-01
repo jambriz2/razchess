@@ -1,7 +1,6 @@
 package razchess
 
 import (
-	"log"
 	"sync"
 	"time"
 
@@ -13,20 +12,37 @@ import (
 var sanDecoder chess.AlgebraicNotation
 
 type Session struct {
-	mtx         sync.Mutex
-	roomID      string
-	game        *chess.Game
-	isCustom    bool
-	clients     []*jsonrpc.JsonRPC
-	killTimer   *time.Timer
-	killTimeout time.Duration
-	dbUpdater   func()
+	slc      *sessionLifecycle
+	mtx      sync.Mutex
+	game     *chess.Game
+	isCustom bool
+	clients  []*jsonrpc.JsonRPC
+}
+
+func newSession(slc *sessionLifecycle, game string) (*Session, error) {
+	sess := &Session{}
+	if err := sess.init(slc, game); err != nil {
+		return nil, err
+	}
+	return sess, nil
+}
+
+func (sess *Session) init(slc *sessionLifecycle, game string) error {
+	opts, isCustom, err := parseGame(game)
+	if err != nil {
+		return err
+	}
+	sess.slc = slc
+	sess.game = chess.NewGame(opts...)
+	sess.isCustom = isCustom
+	if sess.isCustom {
+		go sess.slc.update(sess.gameToString())
+	}
+	return nil
 }
 
 // Session.Move is the only exposed RPC function
 func (sess *Session) Move(san string, validMove *bool) error {
-	log.Printf("[%s] %s", sess.roomID, san)
-
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 
@@ -46,32 +62,9 @@ func (sess *Session) Move(san string, validMove *bool) error {
 		sess.updateClients()
 	}
 
-	go sess.dbUpdater()
+	go sess.slc.update(sess.gameToString())
 
 	return nil
-}
-
-func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess.Game)) {
-	log.Printf("[new session: %s]", roomID)
-
-	sess.roomID = roomID
-	sess.game = chess.NewGame(options...)
-	sess.isCustom = len(options) > 0
-	sess.killTimeout = mgr.killTimeout
-	sess.killTimer = time.NewTimer(sess.killTimeout)
-	sess.dbUpdater = func() {
-		mgr.updateSession(roomID, gameToString(sess.game, sess.isCustom))
-	}
-
-	go func() {
-		<-sess.killTimer.C
-		mgr.killSession(sess.roomID)
-		log.Printf("[session expired: %s]", roomID)
-	}()
-
-	if sess.isCustom {
-		go sess.dbUpdater()
-	}
 }
 
 func (sess *Session) handleMove(san string) bool {
@@ -89,7 +82,7 @@ func (sess *Session) addClient(client *jsonrpc.JsonRPC) {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 	sess.clients = append(sess.clients, client)
-	sess.killTimer.Stop()
+	sess.slc.stopTimer()
 }
 
 func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
@@ -97,7 +90,7 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 	defer sess.mtx.Unlock()
 	if len(sess.clients) == 1 {
 		sess.clients = nil
-		sess.killTimer.Reset(sess.killTimeout)
+		sess.slc.startTimer()
 		return
 	}
 	for i, cl := range sess.clients {
@@ -121,6 +114,10 @@ func (sess *Session) updateClients() {
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
 	}
+}
+
+func (sess *Session) gameToString() string {
+	return gameToString(sess.game, sess.isCustom)
 }
 
 func (sess *Session) serve(ws *websocket.Conn) {
