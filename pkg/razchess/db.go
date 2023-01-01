@@ -30,18 +30,18 @@ func (db *DB) LoadSessions() map[string]string {
 	}
 	results := make(map[string]string)
 	for _, room := range rooms {
-		fen, err := db.Get(context.Background(), room).Result()
+		game, err := db.Get(context.Background(), room).Result()
 		if err != nil {
 			log.Println("Redis error:", err)
 			continue
 		}
-		results[room] = fen
+		results[room] = game
 	}
 	return results
 }
 
-func (db *DB) SaveSession(room, fen string, expiration time.Duration) {
-	if err := db.Set(context.Background(), room, fen, expiration).Err(); err != nil {
+func (db *DB) SaveSession(room, game string, expiration time.Duration) {
+	if err := db.Set(context.Background(), room, game, expiration).Err(); err != nil {
 		log.Println("Redis error:", err)
 	}
 }

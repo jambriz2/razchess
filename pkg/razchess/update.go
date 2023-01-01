@@ -8,13 +8,17 @@ type Move [2]string
 
 type Update struct {
 	FEN       string `json:"fen"`
+	PGN       string `json:"pgn"`
 	WhiteMove Move   `json:"wm"`
 	BlackMove Move   `json:"bm"`
 }
 
-func newUpdate(game *chess.Game) *Update {
+func newUpdate(game *chess.Game, showPGN bool) *Update {
 	u := &Update{
 		FEN: game.FEN(),
+	}
+	if showPGN {
+		u.PGN = game.String()[1:]
 	}
 	moves := game.Moves()
 	positions := game.Positions()

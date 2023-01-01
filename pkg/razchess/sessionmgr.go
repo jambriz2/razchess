@@ -3,10 +3,10 @@ package razchess
 import (
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/notnil/chess"
 	"golang.org/x/net/websocket"
 )
 
@@ -30,14 +30,17 @@ func NewSessionMgr(redisURL string, killTimeout time.Duration) *SessionMgr {
 		if err != nil {
 			log.Println("Redis error:", err)
 		} else {
-			for roomID, fen := range db.LoadSessions() {
-				customFEN, err := chess.FEN(fen)
+			for roomID, game := range db.LoadSessions() {
+				opt, err := parseGame(game)
 				if err != nil {
-					log.Println("FEN error:", err)
+					log.Println("Game parse error:", err)
 					continue
 				}
 				sess := &Session{}
-				sess.init(roomID, mgr, customFEN)
+				sess.init(roomID, mgr, opt)
+				if strings.HasPrefix(game, "pgn:") {
+					sess.isCustom = false
+				}
 				mgr.sessions.Store(roomID, sess)
 				log.Printf("[Session loaded from persistent storage: %s]", roomID)
 			}
@@ -59,8 +62,8 @@ func (mgr *SessionMgr) GetSessionServer(roomID string) http.Handler {
 	return websocket.Handler(mgr.GetSession(roomID).serve)
 }
 
-func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
-	customFEN, err := chess.FEN(fen)
+func (mgr *SessionMgr) NewCustomSession(game string) (string, error) {
+	opt, err := parseGame(game)
 	if err != nil {
 		return "", err
 	}
@@ -69,15 +72,15 @@ func (mgr *SessionMgr) NewCustomSession(fen string) (string, error) {
 		sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
 		if !loaded {
 			sess := sess.(*Session)
-			sess.init(roomID, mgr, customFEN)
+			sess.init(roomID, mgr, opt)
 			return roomID, nil
 		}
 	}
 }
 
-func (mgr *SessionMgr) updateSession(roomID, fen string) {
+func (mgr *SessionMgr) updateSession(roomID, game string) {
 	if mgr.db != nil {
-		mgr.db.SaveSession(roomID, fen, mgr.killTimeout)
+		mgr.db.SaveSession(roomID, game, mgr.killTimeout)
 	}
 }
 

@@ -73,7 +73,7 @@ class Game {
         this.bm = update.bm;
         this.colorLastMoves();
         if (this.onUpdateCallback) {
-            this.onUpdateCallback(this.getStatus(), update.wm, update.bm, update.fen)
+            this.onUpdateCallback(this.getStatus(), update.wm, update.bm, update.fen, update.pgn)
         }
     }
 
@@ -140,13 +140,18 @@ class Menu {
         });        
     }
 
-    update(status, wm, bm, fen) {
+    update(status, wm, bm, fen, pgn) {
         var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
         var html = '<span>';
         html += ' <a href="/">New session</a>'
         html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + sessionUrl + '\'); return false;">Copy session link</a>';
         html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + fen + '\'); return false;">Copy FEN</a>';
-        html += ' | <a href="/fen/' + fen + '" target="_blank">Clone session</a>'
+        if (pgn) {
+            html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + pgn + '\'); return false;">Copy PGN</a>';
+            html += ' | <a href="/custom/pgn:' + pgn + '" target="_blank">Clone session</a>'
+        } else {
+            html += ' | <a href="/custom/fen:' + fen + '" target="_blank">Clone session</a>'
+        }
         html += ' | <a href="/puzzle">Play a puzzle</a>';
         html += '</span>'
         html += '<br />' + status

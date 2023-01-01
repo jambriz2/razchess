@@ -16,10 +16,11 @@ type Session struct {
 	mtx         sync.Mutex
 	roomID      string
 	game        *chess.Game
+	isCustom    bool
 	clients     []*jsonrpc.JsonRPC
 	killTimer   *time.Timer
 	killTimeout time.Duration
-	dbUpdater   func(fen string)
+	dbUpdater   func()
 }
 
 // Session.Move is the only exposed RPC function
@@ -45,7 +46,7 @@ func (sess *Session) Move(san string, validMove *bool) error {
 		sess.updateClients()
 	}
 
-	go sess.dbUpdater(sess.game.FEN())
+	go sess.dbUpdater()
 
 	return nil
 }
@@ -55,10 +56,11 @@ func (sess *Session) init(roomID string, mgr *SessionMgr, options ...func(*chess
 
 	sess.roomID = roomID
 	sess.game = chess.NewGame(options...)
+	sess.isCustom = len(options) > 0
 	sess.killTimeout = mgr.killTimeout
 	sess.killTimer = time.NewTimer(sess.killTimeout)
-	sess.dbUpdater = func(fen string) {
-		mgr.updateSession(roomID, sess.game.FEN())
+	sess.dbUpdater = func() {
+		mgr.updateSession(roomID, gameToString(sess.game, sess.isCustom))
 	}
 
 	go func() {
@@ -102,12 +104,16 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 	}
 }
 
+func (sess *Session) getUpdate() *Update {
+	return newUpdate(sess.game, !sess.isCustom)
+}
+
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
 	client.Notify("Session.Update", update)
 }
 
 func (sess *Session) updateClients() {
-	update := newUpdate(sess.game)
+	update := sess.getUpdate()
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
 	}
@@ -119,7 +125,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 
 	sess.addClient(client)
 
-	sess.updateClient(client, newUpdate(sess.game))
+	sess.updateClient(client, sess.getUpdate())
 	client.Serve()
 
 	sess.removeClient(client)

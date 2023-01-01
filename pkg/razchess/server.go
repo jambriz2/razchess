@@ -52,9 +52,9 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		srv.index.Execute(w, roomID)
 	})
 
-	srv.HandleFunc("/fen/", func(w http.ResponseWriter, r *http.Request) {
-		customFEN := r.URL.Path[5:]
-		srv.handleCustomSession(w, r, customFEN, true)
+	srv.HandleFunc("/custom/", func(w http.ResponseWriter, r *http.Request) {
+		game := r.URL.Path[8:]
+		srv.handleCustomSession(w, r, game, true)
 	})
 
 	srv.HandleFunc("/puzzle", func(w http.ResponseWriter, r *http.Request) {
@@ -78,11 +78,11 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 	return srv
 }
 
-func (srv *Server) handleCustomSession(w http.ResponseWriter, r *http.Request, fen string, showRoomID bool) {
-	if len(fen) == 0 {
+func (srv *Server) handleCustomSession(w http.ResponseWriter, r *http.Request, game string, showRoomID bool) {
+	if len(game) == 0 {
 		redirectToNewSession(w, r)
 	}
-	roomID, err := srv.mgr.NewCustomSession(fen)
+	roomID, err := srv.mgr.NewCustomSession(game)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else if showRoomID {

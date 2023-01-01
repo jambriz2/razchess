@@ -3,6 +3,9 @@ package razchess
 import (
 	"crypto/rand"
 	"io"
+	"strings"
+
+	"github.com/notnil/chess"
 )
 
 const (
@@ -29,5 +32,24 @@ func GenerateID(length int) string {
 				}
 			}
 		}
+	}
+}
+
+func parseGame(game string) (func(*chess.Game), error) {
+	switch {
+	case strings.HasPrefix(game, "fen:"):
+		return chess.FEN(game[4:])
+	case strings.HasPrefix(game, "pgn:"):
+		return chess.PGN(strings.NewReader(game[4:]))
+	default:
+		return chess.FEN(game)
+	}
+}
+
+func gameToString(game *chess.Game, customGame bool) string {
+	if customGame {
+		return "fen:" + game.FEN()
+	} else {
+		return "pgn:" + game.String()[1:]
 	}
 }
