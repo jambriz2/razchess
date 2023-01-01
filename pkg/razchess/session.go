@@ -9,8 +9,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var sanDecoder chess.AlgebraicNotation
-
 type Session struct {
 	slc      *sessionLifecycle
 	mtx      sync.Mutex
@@ -46,7 +44,7 @@ func (sess *Session) Move(san string, validMove *bool) error {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 
-	*validMove = sess.handleMove(san)
+	*validMove = sess.handleMoveSAN(san)
 	if !*validMove {
 		return nil
 	}
@@ -58,7 +56,7 @@ func (sess *Session) Move(san string, validMove *bool) error {
 			break
 		}
 		<-time.NewTimer(time.Second / 2).C
-		sess.handleMove(sanDecoder.Encode(sess.game.Position(), validNextMoves[0]))
+		sess.handleMove(validNextMoves[0])
 		sess.updateClients()
 	}
 
@@ -67,12 +65,15 @@ func (sess *Session) Move(san string, validMove *bool) error {
 	return nil
 }
 
-func (sess *Session) handleMove(san string) bool {
-	move, err := sanDecoder.Decode(sess.game.Position(), san)
-	if err != nil {
+func (sess *Session) handleMove(move *chess.Move) bool {
+	if err := sess.game.Move(move); err != nil {
 		return false
 	}
-	if err := sess.game.Move(move); err != nil {
+	return true
+}
+
+func (sess *Session) handleMoveSAN(san string) bool {
+	if err := sess.game.MoveStr(san); err != nil {
 		return false
 	}
 	return true
