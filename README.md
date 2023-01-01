@@ -5,10 +5,14 @@
 * Super easy to create your own session
   * Visit the website and get redirectede to your own session
   * Create your own custom room name {razchess-host}/room/{custom-room-name}
+* Play custom games
+  * {razchess-host}/custom/fen:{custom-FEN}
+  * {razchess-host}/custom/pgn:{custom-PGN}
+* Play chess puzzles!
+  * 220x built-in mate-in-2-steps puzzles
+  * External puzzles can be loaded
 * Share the room/session link with as many people as you want, they can all watch or participate
 * Last steps are shown for both colors
-* Info bar can be enabled by clicking on the chess icon in the top left corner
-* Chess puzzles! (220x mate-in-2-steps puzzles as of writing this doc)
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 
 ## Limitations
