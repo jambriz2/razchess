@@ -204,8 +204,7 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 }
 
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
-	unused := false
-	go client.Call("Session.Update", update, &unused)
+	client.Notify("Session.Update", update)
 }
 
 func (sess *Session) serve(ws *websocket.Conn) {
@@ -214,17 +213,8 @@ func (sess *Session) serve(ws *websocket.Conn) {
 
 	sess.addClient(client)
 
-	go func() {
-		<-time.NewTimer(time.Second / 2).C // artificial delay just to show fancy loader
-		sess.updateClient(client, sess.getUpdate())
-	}()
+	sess.updateClient(client, sess.getUpdate())
 	client.Serve()
 
 	sess.removeClient(client)
-}
-
-type Update struct {
-	FEN       string    `json:"fen"`
-	WhiteMove [2]string `json:"wm"`
-	BlackMove [2]string `json:"bm"`
 }

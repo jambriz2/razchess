@@ -109,6 +109,27 @@ func (j *JsonRPC) Call(serviceMethod string, params interface{}, result interfac
 	return err
 }
 
+func (j *JsonRPC) Notify(serviceMethod string, params interface{}) error {
+	call := new(Call)
+	call.ServiceMethod = serviceMethod
+	call.Args = params
+	call.parrent = j
+
+	j.clmu.Lock()
+
+	j.clientSequenzNum++
+	call.Seq = j.clientSequenzNum
+
+	j.clmu.Unlock()
+
+	err := call.send()
+	if err != nil {
+		fmt.Println("rpc: call error:", err.Error())
+	}
+
+	return err
+}
+
 func (c *Call) send() error {
 	req := new(clientRequest)
 	req.Id = c.Seq
