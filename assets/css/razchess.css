@@ -22,7 +22,7 @@ a:hover, a:active {
 span {
     color: lightgrey;
 }
-#infoBtn {
+#menuBtn {
     position: absolute;
     left: 8px;
     top: 8px;
@@ -30,10 +30,10 @@ span {
     height: 32px;
     opacity: 0.5;
 }
-#infoBtn:hover {
+#menuBtn:hover {
     opacity: 1;
 }
-#infoBar {
+#menuBar {
     position: absolute;
     left: 48px;
     top: 8px;
