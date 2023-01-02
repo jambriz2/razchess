@@ -40,14 +40,14 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 
 	srv.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.Path) <= 1 {
-			redirectToNewSession(w, r)
+			srv.redirectToNewSession(w, r)
 		}
 	})
 
 	srv.HandleFunc("/room/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[6:]
 		if len(roomID) == 0 {
-			redirectToNewSession(w, r)
+			srv.redirectToNewSession(w, r)
 		}
 		srv.index.Execute(w, roomID)
 	})
@@ -72,7 +72,7 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 
 	srv.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[4:]
-		mgr.GetSessionServer(roomID).ServeHTTP(w, r)
+		mgr.ServeSession(w, r, roomID)
 	})
 
 	return srv
@@ -80,9 +80,9 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 
 func (srv *Server) handleCustomSession(w http.ResponseWriter, r *http.Request, game string, showRoomID bool) {
 	if len(game) == 0 {
-		redirectToNewSession(w, r)
+		srv.redirectToNewSession(w, r)
 	}
-	roomID, err := srv.mgr.NewCustomSession(game)
+	roomID, err := srv.mgr.CreateSession(game)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else if showRoomID {
@@ -92,6 +92,7 @@ func (srv *Server) handleCustomSession(w http.ResponseWriter, r *http.Request, g
 	}
 }
 
-func redirectToNewSession(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/room/"+GenerateID(6), http.StatusTemporaryRedirect)
+func (srv *Server) redirectToNewSession(w http.ResponseWriter, r *http.Request) {
+	roomID, _ := srv.mgr.CreateSession("")
+	http.Redirect(w, r, "/room/"+roomID, http.StatusTemporaryRedirect)
 }

@@ -36,34 +36,39 @@ func NewSessionMgr(redisURL string, killTimeout time.Duration) *SessionMgr {
 	return mgr
 }
 
-func (mgr *SessionMgr) GetSession(roomID string) *Session {
-	sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
-	if !loaded {
-		sess.(*Session).init(newSessionLifecycle(mgr, roomID), "")
-		log.Printf("[new session: %s]", roomID)
-	}
-	return sess.(*Session)
-}
-
-func (mgr *SessionMgr) GetSessionServer(roomID string) http.Handler {
-	return websocket.Handler(mgr.GetSession(roomID).serve)
-}
-
-func (mgr *SessionMgr) NewCustomSession(game string) (string, error) {
+func (mgr *SessionMgr) CreateSession(game string) (string, error) {
 	slc := newSessionLifecycle(mgr, "")
 	sess, err := newSession(slc, game)
 	if err != nil {
 		return "", err
 	}
 	for {
-		roomID := "custom-" + GenerateID(6)
+		roomID := GenerateID(6)
 		if _, loaded := mgr.sessions.LoadOrStore(roomID, sess); !loaded {
 			slc.resetRoomID(roomID)
-			log.Printf("[new custom session: %s] %s", roomID, game)
+			if len(game) > 0 {
+				log.Printf("[new custom session: %s] %s", roomID, game)
+			} else {
+				log.Printf("[new session: %s]", roomID)
+			}
 			go slc.update(sess.gameToString())
 			return roomID, nil
 		}
 	}
+}
+
+func (mgr *SessionMgr) ServeSession(w http.ResponseWriter, r *http.Request, roomID string) {
+	sess := mgr.getOrCreateSession(roomID)
+	websocket.Handler(sess.serve).ServeHTTP(w, r)
+}
+
+func (mgr *SessionMgr) getOrCreateSession(roomID string) *Session {
+	sess, loaded := mgr.sessions.LoadOrStore(roomID, &Session{})
+	if !loaded {
+		sess.(*Session).init(newSessionLifecycle(mgr, roomID), "")
+		log.Printf("[new session: %s]", roomID)
+	}
+	return sess.(*Session)
 }
 
 func (mgr *SessionMgr) loadSessions() {
