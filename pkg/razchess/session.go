@@ -33,9 +33,6 @@ func (sess *Session) init(slc *sessionLifecycle, game string) error {
 	sess.slc = slc
 	sess.game = chess.NewGame(opts...)
 	sess.isCustom = isCustom
-	if sess.isCustom {
-		go sess.slc.update(sess.gameToString())
-	}
 	return nil
 }
 

@@ -60,6 +60,7 @@ func (mgr *SessionMgr) NewCustomSession(game string) (string, error) {
 		if _, loaded := mgr.sessions.LoadOrStore(roomID, sess); !loaded {
 			slc.resetRoomID(roomID)
 			log.Printf("[new custom session: %s] %s", roomID, game)
+			go slc.update(sess.gameToString())
 			return roomID, nil
 		}
 	}
