@@ -57,7 +57,11 @@ func (mgr *SessionMgr) CreateSession(game string) (string, error) {
 	}
 }
 
-func (mgr *SessionMgr) ServeSession(w http.ResponseWriter, r *http.Request, roomID string) {
+func (mgr *SessionMgr) ServeRPC(w http.ResponseWriter, r *http.Request, roomID string) {
+	if len(roomID) == 0 {
+		http.Error(w, "Empty roomID", http.StatusBadRequest)
+		return
+	}
 	sess := mgr.getOrCreateSession(roomID)
 	websocket.Handler(sess.serve).ServeHTTP(w, r)
 }
