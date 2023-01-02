@@ -20,7 +20,7 @@ func newSessionLifecycle(mgr *SessionMgr, roomID string) *sessionLifecycle {
 	}
 	go func() {
 		<-slc.killTimer.C
-		mgr.killSession(roomID)
+		mgr.killSession(slc.roomID)
 	}()
 	return slc
 }
