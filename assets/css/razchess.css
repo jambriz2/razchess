@@ -50,63 +50,20 @@ span {
     width: 100%;
     height: 100%;
 }
-.white-1e1d7.highlight-white {
-    box-shadow: inset 0 0 3px 3px white;
-    background: repeating-linear-gradient(
-        45deg,
-        #fff5d1,
-        #fff5d1 25%,
-        #f0d9b5 25%,
-        #f0d9b5 50%
-    );
+.white-1e1d7.highlight-move, .white-1e1d7.highlight2-9c5d2, .white-1e1d7.highlight1-32417 {
+    box-shadow: none;
+    background-color: #F7C163;
 }
-.white-1e1d7.highlight-black {
-    box-shadow: inset 0 0 3px 3px black;
-    background: repeating-linear-gradient(
-        45deg,
-        #d3bd9a,
-        #d3bd9a 25%,
-        #f0d9b5 25%,
-        #f0d9b5 50%
-    );
+.black-3c85d.highlight-move, .black-3c85d.highlight2-9c5d2, .black-3c85d.highlight1-32417 {
+    box-shadow: none;
+    background-color: #D79536;
 }
-.white-1e1d7.highlight-white.highlight-black {
-    box-shadow: inset 0 0 3px 3px grey;
-    background: repeating-linear-gradient(
-        45deg,
-        #fff5d1,
-        #fff5d1 25%,
-        #d3bd9a 25%,
-        #d3bd9a 50%
-    );
+.highlight-check {
+    background-color: red;
 }
-.black-3c85d.highlight-white {
-    box-shadow: inset 0 0 3px 3px white;
-    background: repeating-linear-gradient(
-        45deg,
-        #d1a27c,
-        #d1a27c 25%,
-        #b58863 25%,
-        #b58863 50%
-    );
+.white-1e1d7.highlight-square {
+    background-color: #F77663;
 }
-.black-3c85d.highlight-black {
-    box-shadow: inset 0 0 3px 3px black;
-    background: repeating-linear-gradient(
-        45deg,
-        #996f4b,
-        #996f4b 25%,
-        #b58863 25%,
-        #b58863 50%
-    );
-}
-.black-3c85d.highlight-white.highlight-black {
-    box-shadow: inset 0 0 3px 3px grey;
-    background: repeating-linear-gradient(
-        45deg,
-        #d1a27c,
-        #d1a27c 25%,
-        #996f4b 25%,
-        #996f4b 50%
-    );
+.black-3c85d.highlight-square {
+    background-color: #D74A36;
 }

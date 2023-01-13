@@ -38,7 +38,7 @@ class RPC {
 class Game {
     constructor(rpc, boardID) {
         this.rpc = rpc;
-        this.logic = new Chess();
+        this.game = new Chess();
         this.board = Chessboard(boardID, this.getBoardConfig());
         this.wm = null;
         this.bm = null;
@@ -48,8 +48,14 @@ class Game {
         })
         $(window).resize(function() {
             instance.board.resize();
-            instance.colorLastMoves();
+            instance.colorSpecialSquares();
         });
+        $('#' + boardID).on('contextmenu', '.square-55d63', function(e) {
+            if (e.button === 2) {
+                $(this).toggleClass('highlight-square');
+                e.preventDefault();
+            }
+        })    
     }
 
     getBoardConfig() {
@@ -67,13 +73,12 @@ class Game {
     }
 
     update(update) {
-        this.logic = new Chess(update.fen);
+        this.game = new Chess(update.fen);
         this.board.position(update.fen);
-        this.wm = update.wm;
-        this.bm = update.bm;
-        this.colorLastMoves();
+        this.lastMove = update.move;
+        this.colorSpecialSquares();
         if (this.onUpdateCallback) {
-            this.onUpdateCallback(this.getStatus(), update.wm, update.bm, update.fen, update.pgn)
+            this.onUpdateCallback(this.getStatus(), update.fen, update.pgn)
         }
     }
 
@@ -83,47 +88,50 @@ class Game {
 
     resize() {
         this.board.resize();
-        this.colorLastMoves();
+        this.colorSpecialSquares();
     }
 
     getStatus() {
-        var moveColor = (this.logic.turn() === 'w' ? 'White' : 'Black')
-        if (this.logic.in_checkmate()) {
-          return 'Game over, ' + moveColor + ' is in checkmate'
+        var moveColor = (this.game.turn() === 'w' ? 'White' : 'Black');
+        if (this.game.in_checkmate()) {
+          return 'Game over, ' + moveColor + ' is in checkmate';
         }
-        else if (this.logic.in_draw()) {
-          return 'Game over, drawn position'
+        else if (this.game.in_draw()) {
+          return 'Game over, drawn position';
         }
         else {
-          var status = moveColor + ' to move'
-          if (this.logic.in_check()) {
-            status += ', ' + moveColor + ' is in check'
+          var status = moveColor + ' to move';
+          if (this.game.in_check()) {
+            status += ', ' + moveColor + ' is in check';
           }
-          return status
+          return status;
         }
     }
     
-    colorLastMoves() {
-        const squareClass = 'square-55d63'
+    colorSpecialSquares() {
         var $board = $('#board');
-        $board.find('.' + squareClass).removeClass('highlight-white')
-        $board.find('.square-' + this.wm[0]).addClass('highlight-white')
-        $board.find('.square-' + this.wm[1]).addClass('highlight-white')
-        $board.find('.' + squareClass).removeClass('highlight-black')
-        $board.find('.square-' + this.bm[0]).addClass('highlight-black')
-        $board.find('.square-' + this.bm[1]).addClass('highlight-black')
+        $board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
+        $board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
+        $board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
+        if (this.game.in_check()) {
+            var color = this.game.turn();
+            var king = [].concat(...this.game.board()).find(p => p !== null && p.type === 'k' && p.color === color);
+            if (king) {
+                $board.find('.square-' + king.square).addClass('highlight-check');
+            }
+        }
     }
 
     onDragStart(source, piece, position, orientation) {
-        if (this.logic.game_over()) return false;
-        if ((this.logic.turn() === 'w' && piece.search(/^b/) !== -1) ||
-            (this.logic.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        if (this.game.game_over()) return false;
+        if ((this.game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+            (this.game.turn() === 'b' && piece.search(/^w/) !== -1)) {
             return false;
         }
     }
     
     onDrop(source, target) {
-        var move = this.logic.move({
+        var move = this.game.move({
             from: source,
             to: target,
             promotion: 'q'
@@ -140,27 +148,16 @@ class Menu {
         });        
     }
 
-    update(status, wm, bm, fen, pgn) {
+    update(status, fen, pgn) {
         var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
         var html = '<span>';
         html += ' <a href="/">New session</a>'
         html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + sessionUrl + '\'); return false;">Copy session link</a>';
         html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + fen + '\'); return false;">Copy FEN</a>';
-        if (pgn) {
-            html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + pgn + '\'); return false;">Copy PGN</a>';
-            html += ' | <a href="/custom/pgn:' + pgn + '" target="_blank">Clone session</a>'
-        } else {
-            html += ' | <a href="/custom/fen:' + fen + '" target="_blank">Clone session</a>'
-        }
+        html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + pgn + '\'); return false;">Copy PGN</a>';
         html += ' | <a href="/puzzle">Play a puzzle</a>';
         html += '</span>'
         html += '<br />' + status
-        if (wm && wm[0].length > 0) {
-            html += ' | ⚪ ' + wm[0] + '→' + wm[1];
-        }
-        if (bm && bm[0].length > 0) {
-            html += ' | ⚫ ' + bm[0] + '→' + bm[1];
-        }
         $('#menuBar').html(html);
         document.title = status + ' - RazChess'
     }

@@ -100,7 +100,7 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 }
 
 func (sess *Session) getUpdate() *Update {
-	return newUpdate(sess.game, !sess.isCustom)
+	return newUpdate(sess.game)
 }
 
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {

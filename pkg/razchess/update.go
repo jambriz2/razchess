@@ -7,37 +7,21 @@ import (
 type Move [2]string
 
 type Update struct {
-	FEN       string `json:"fen"`
-	PGN       string `json:"pgn"`
-	WhiteMove Move   `json:"wm"`
-	BlackMove Move   `json:"bm"`
+	FEN      string `json:"fen"`
+	PGN      string `json:"pgn"`
+	LastMove Move   `json:"move"`
 }
 
-func newUpdate(game *chess.Game, showPGN bool) *Update {
+func newUpdate(game *chess.Game) *Update {
 	u := &Update{
 		FEN: game.FEN(),
-	}
-	if showPGN {
-		u.PGN = game.String()[1:]
+		PGN: game.String()[1:],
 	}
 	moves := game.Moves()
-	positions := game.Positions()
-	count := len(moves)
-	if count > 1 {
-		u.setMove(moves[count-1], positions[count-1])
-		u.setMove(moves[count-2], positions[count-2])
-	} else if count > 0 {
-		u.setMove(moves[count-1], positions[count-1])
+	if len(moves) > 0 {
+		lastMove := moves[len(moves)-1]
+		u.LastMove[0] = lastMove.S1().String()
+		u.LastMove[1] = lastMove.S2().String()
 	}
 	return u
-}
-
-func (u *Update) setMove(move *chess.Move, pos *chess.Position) {
-	if pos.Board().Piece(move.S1()).Color() == chess.White {
-		u.WhiteMove[0] = move.S1().String()
-		u.WhiteMove[1] = move.S2().String()
-	} else {
-		u.BlackMove[0] = move.S1().String()
-		u.BlackMove[1] = move.S2().String()
-	}
 }
