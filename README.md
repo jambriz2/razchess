@@ -12,15 +12,14 @@
   * 220x built-in mate-in-2-steps puzzles
   * External puzzles can be loaded
 * Share the room/session link with as many people as you want, they can all watch or participate
-* Last steps are shown for both colors
+* Encyclopaedia of Chess Openings included
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 
 ## Limitations
-* No built-in chat
-* No timer
-* No step count
-* No option to resign or ask for a draw
 * **Pawns can only be promoted to queen**
+* No timer
+* No option to resign or ask for a draw
+* No built-in chat
 * Not designed to be scalable, though it could work with sticky sessions or DNS load balancing
 * No built-in TLS/https handling, but you can use [razvhost](https://github.com/razzie/razvhost) for that
 
