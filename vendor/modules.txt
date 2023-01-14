@@ -17,6 +17,7 @@ github.com/go-redis/redis/v8/internal/util
 # github.com/notnil/chess v1.9.0
 ## explicit; go 1.14
 github.com/notnil/chess
+github.com/notnil/chess/opening
 # github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5
 ## explicit; go 1.19
 github.com/razzie/jsonrpc

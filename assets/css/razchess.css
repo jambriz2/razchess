@@ -11,6 +11,10 @@ body {
     align-self: center;
     overscroll-behavior-y: contain;
 }
+h1 {
+    color: #f0d9b5;
+    display: inline;
+}
 #menuBar {
     position: absolute;
     left: 0;

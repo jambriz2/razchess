@@ -56,7 +56,7 @@ class Game {
             this.board.destroy();
             this.board = null;
             if (this.onUpdate) {
-                this.onUpdate('Disconnected', this.lastFEN, this.lastPGN);
+                this.onUpdate('Disconnected', '', this.lastFEN, this.lastPGN);
             }
             this.setLoading();
         }
@@ -97,7 +97,7 @@ class Game {
         this.lastPGN = update.pgn;
         this.colorSpecialSquares();
         if (this.onUpdate) {
-            this.onUpdate(this.getStatus(), update.fen, update.pgn)
+            this.onUpdate(this.getStatus(), update.opening, update.fen, update.pgn)
         }
     }
 
@@ -171,10 +171,14 @@ class Menu {
         navigator.clipboard.writeText(this.pgn);
     }
 
-    update(status, fen, pgn) {
+    update(status, opening, fen, pgn) {
         this.fen = fen;
         this.pgn = pgn;
-        $('#status').html('<span>' + status + '</span>');
+        var html = '<span>' + status + '</span>';
+        if (opening) {
+            html = '<h1>' + opening + '</h1> - ' + status;
+        }
+        $('#status').html(html);
         document.title = status + ' - RazChess'
     }
 }
