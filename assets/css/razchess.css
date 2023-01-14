@@ -11,33 +11,24 @@ body {
     align-self: center;
     overscroll-behavior-y: contain;
 }
-a, a:link, a:visited {
-    color: inherit;
-    text-decoration: none;
-}
-a:hover, a:active {
-    color: #f0d9b5;
-    text-decoration: underline;
-}
-span {
-    color: lightgrey;
-}
-#menuBtn {
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    width: 32px;
-    height: 32px;
-    opacity: 0.5;
-}
-#menuBtn:hover {
-    opacity: 1;
-}
 #menuBar {
     position: absolute;
-    left: 48px;
-    top: 8px;
-    width: calc(100% - 64px);
+    left: 0;
+    top: 0;
+    padding: 12px;
+    width: 100%;
+}
+#status span {
+    display: flex;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: auto 0;
+    animation:
+        typing 0.5s steps(30, end);
+}
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
 }
 #loading {
     width: 200px;

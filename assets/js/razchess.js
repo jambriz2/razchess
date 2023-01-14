@@ -143,22 +143,25 @@ class Game {
 
 class Menu {
     constructor() {
-        $('#menuBtn').click(function() {
-            $('#menuBar').toggle();
-        });        
+    }
+
+    copySessionLink() {
+        var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
+        navigator.clipboard.writeText(sessionUrl);
+    }
+
+    copyFEN() {
+        navigator.clipboard.writeText(this.fen);
+    }
+
+    copyPGN() {
+        navigator.clipboard.writeText(this.pgn);
     }
 
     update(status, fen, pgn) {
-        var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
-        var html = '<span>';
-        html += ' <a href="/">New session</a>'
-        html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + sessionUrl + '\'); return false;">Copy session link</a>';
-        html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + fen + '\'); return false;">Copy FEN</a>';
-        html += ' | <a href="#" onClick="navigator.clipboard.writeText(\'' + pgn + '\'); return false;">Copy PGN</a>';
-        html += ' | <a href="/puzzle">Play a puzzle</a>';
-        html += '</span>'
-        html += '<br />' + status
-        $('#menuBar').html(html);
+        this.fen = fen;
+        this.pgn = pgn;
+        $('#status').html('<span>' + status + '</span>');
         document.title = status + ' - RazChess'
     }
 }
@@ -169,6 +172,8 @@ rpc.onUpdate(function(update) {
     $('#loading').hide();
     $('#board').show();
     game = new Game(rpc, 'board');
-    game.onUpdate(menu.update);
+    game.onUpdate(function(status, fen, pgn) {
+        menu.update(status, fen, pgn);
+    });
     game.update(update);
 })
