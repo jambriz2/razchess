@@ -6,9 +6,8 @@ class Game {
         this.roomID = roomID;
         this.boardID = boardID;
         this.$board = $('#' + boardID);
-        this.setLoading();
         this.game = new Chess();
-        this.board = Chessboard(boardID, this.getBoardConfig());
+        this.setLoading();
         this.connectToRPC();
         var self = this;
         $(window).resize(function() {
@@ -27,16 +26,16 @@ class Game {
         var self = this;
         var jrpc = new simple_jsonrpc();
         var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + roomID);
-        socket.onmessage = function(event) {
-            jrpc.messageHandler(event.data);
-        };
-        jrpc.toStream = function(_msg){
-            socket.send(_msg);
-        };
         jrpc.on('Session.Update', function(update) {
             self.update(update);
             return true;
         })
+        jrpc.toStream = function(_msg){
+            socket.send(_msg);
+        };
+        socket.onmessage = function(event) {
+            jrpc.messageHandler(event.data);
+        };
         socket.onerror = function(error) {
             console.error("Error: " + error.message);
             self.handleDisconnect(error);
@@ -126,8 +125,10 @@ class Game {
     
     colorSpecialSquares() {
         this.$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
-        this.$board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
-        this.$board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
+        if (this.lastMove) {
+            this.$board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
+            this.$board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
+        }
         if (this.game.in_check()) {
             var color = this.game.turn();
             var king = [].concat(...this.game.board()).find(p => p !== null && p.type === 'k' && p.color === color);
