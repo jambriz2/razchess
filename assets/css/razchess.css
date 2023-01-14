@@ -30,16 +30,17 @@ body {
     from { width: 0 }
     to { width: 100% }
 }
-#loading {
-    width: 200px;
-    height: 200px;
-}
 #board {
-    display: none;
     max-width: 80vh;
     max-height: 80vh;
     width: 100%;
     height: 100%;
+}
+.loading {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    vertical-align: middle;
 }
 .white-1e1d7.highlight-move, .white-1e1d7.highlight2-9c5d2, .white-1e1d7.highlight1-32417 {
     box-shadow: none;

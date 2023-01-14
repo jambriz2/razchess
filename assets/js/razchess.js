@@ -1,22 +1,82 @@
-class RPC {
-    constructor(roomID) {
+//var loadingSVG = $.ajax({url: '/img/loading.svg', async: false}).responseText;
+var loadingSVG = $('#loader').html();
+
+class Game {
+    constructor(roomID, boardID) {
+        this.roomID = roomID;
+        this.boardID = boardID;
+        this.$board = $('#' + boardID);
+        this.setLoading();
+        this.game = new Chess();
+        this.board = Chessboard(boardID, this.getBoardConfig());
+        this.connectToRPC();
+        var self = this;
+        $(window).resize(function() {
+            self.board.resize();
+            self.colorSpecialSquares();
+        });
+        $('#' + boardID).on('contextmenu', '.square-55d63', function(e) {
+            if (e.button === 2) {
+                $(this).toggleClass('highlight-square');
+                e.preventDefault();
+            }
+        })
+    }
+
+    connectToRPC() {
+        var self = this;
         var jrpc = new simple_jsonrpc();
         var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + roomID);
         socket.onmessage = function(event) {
             jrpc.messageHandler(event.data);
         };
         jrpc.toStream = function(_msg){
-            //if (socket.readyState == 3) location.reload(); // closed socket
             socket.send(_msg);
         };
+        jrpc.on('Session.Update', function(update) {
+            self.update(update);
+            return true;
+        })
         socket.onerror = function(error) {
             console.error("Error: " + error.message);
+            self.handleDisconnect(error);
         };
         socket.onclose = function(event) {
             console.info('close code : ' + event.code + ' reason: ' + event.reason + ' clean: ' + event.wasClean);
-            location.reload();
+            self.handleDisconnect(event);
         };
         this.jrpc = jrpc;
+    }
+
+    setLoading() {
+        this.$board.html('<div class="loading">' + loadingSVG + '</div>');
+    }
+
+    handleDisconnect() {
+        if (this.board) {
+            this.board.destroy();
+            this.board = null;
+            if (this.onUpdate) {
+                this.onUpdate('Disconnected', this.lastFEN, this.lastPGN);
+            }
+            this.setLoading();
+        }
+        var self = this;
+        setTimeout(() => { self.connectToRPC(); }, 5000);
+    }
+
+    getBoardConfig() {
+        var self = this;
+        var config = {
+            draggable: true,
+            onDragStart: function(source, piece, position, orientation) {
+                return self.onDragStart(source, piece, position, orientation);
+            },
+            onDrop: function(source, target) {
+                return self.onDrop(source, target);
+            }
+        }
+        return config;
     }
 
     sendMove(san) {
@@ -27,63 +87,19 @@ class RPC {
         return serverResponse;
     }
 
-    onUpdate(func) {
-        this.jrpc.on('Session.Update', function(update) {
-            func(update)
-            return true
-        })
-    }
-}
-
-class Game {
-    constructor(rpc, boardID) {
-        this.rpc = rpc;
-        this.game = new Chess();
-        this.board = Chessboard(boardID, this.getBoardConfig());
-        this.wm = null;
-        this.bm = null;
-        var instance = this;
-        rpc.onUpdate(function(update) {
-            instance.update(update);
-        })
-        $(window).resize(function() {
-            instance.board.resize();
-            instance.colorSpecialSquares();
-        });
-        $('#' + boardID).on('contextmenu', '.square-55d63', function(e) {
-            if (e.button === 2) {
-                $(this).toggleClass('highlight-square');
-                e.preventDefault();
-            }
-        })    
-    }
-
-    getBoardConfig() {
-        var instance = this;
-        var config = {
-            draggable: true,
-            onDragStart: function(source, piece, position, orientation) {
-                return instance.onDragStart(source, piece, position, orientation);
-            },
-            onDrop: function(source, target) {
-                return instance.onDrop(source, target);
-            }
-        }
-        return config;
-    }
-
     update(update) {
         this.game = new Chess(update.fen);
+        if (!this.board) {
+            this.board = Chessboard(this.boardID, this.getBoardConfig());
+        }
         this.board.position(update.fen);
         this.lastMove = update.move;
+        this.lastFEN = update.fen;
+        this.lastPGN = update.pgn;
         this.colorSpecialSquares();
-        if (this.onUpdateCallback) {
-            this.onUpdateCallback(this.getStatus(), update.fen, update.pgn)
+        if (this.onUpdate) {
+            this.onUpdate(this.getStatus(), update.fen, update.pgn)
         }
-    }
-
-    onUpdate(func) {
-        this.onUpdateCallback = func;
     }
 
     resize() {
@@ -109,15 +125,14 @@ class Game {
     }
     
     colorSpecialSquares() {
-        var $board = $('#board');
-        $board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
-        $board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
-        $board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
+        this.$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
+        this.$board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
+        this.$board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
         if (this.game.in_check()) {
             var color = this.game.turn();
             var king = [].concat(...this.game.board()).find(p => p !== null && p.type === 'k' && p.color === color);
             if (king) {
-                $board.find('.square-' + king.square).addClass('highlight-check');
+                this.$board.find('.square-' + king.square).addClass('highlight-check');
             }
         }
     }
@@ -137,14 +152,11 @@ class Game {
             promotion: 'q'
         });
         if (move === null) return 'snapback';
-        if (this.rpc.sendMove(move.san) == false) return 'snapback';
+        if (this.sendMove(move.san) == false) return 'snapback';
     }
 }
 
 class Menu {
-    constructor() {
-    }
-
     copySessionLink() {
         var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
         navigator.clipboard.writeText(sessionUrl);
@@ -166,14 +178,9 @@ class Menu {
     }
 }
 
-var rpc = new RPC($('#roomID').val());
+var roomID = $('#roomID').val();
 var menu = new Menu();
-rpc.onUpdate(function(update) {
-    $('#loading').hide();
-    $('#board').show();
-    game = new Game(rpc, 'board');
-    game.onUpdate(function(status, fen, pgn) {
-        menu.update(status, fen, pgn);
-    });
-    game.update(update);
-})
+var game = new Game(roomID, 'board');
+game.onUpdate = function(status, fen, pgn) {
+    menu.update(status, fen, pgn);
+};
