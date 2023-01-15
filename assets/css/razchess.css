@@ -21,6 +21,7 @@ h1 {
     top: 0;
     padding: 12px;
     width: 100%;
+    z-index: 99999;
 }
 #status span {
     display: flex;
