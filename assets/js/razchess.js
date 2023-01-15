@@ -66,6 +66,10 @@ class Game {
         return this.jrpc.call('Session.Move', [move]);
     }
 
+    resign() {
+        return this.jrpc.call('Session.Resign', [this.state.turn]);
+    }
+
     update(update) {
         if (!this.board) {
             this.createBoard();

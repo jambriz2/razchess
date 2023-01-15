@@ -63,6 +63,25 @@ func (sess *Session) Move(move string, validMove *bool) error {
 	return nil
 }
 
+// Session.Resign is an RPC function that allows a color to resign
+func (sess *Session) Resign(color string, unused *bool) error {
+	sess.mtx.Lock()
+	defer sess.mtx.Unlock()
+
+	switch color {
+	case "White":
+		sess.game.Resign(chess.White)
+	case "Black":
+		sess.game.Resign(chess.Black)
+	default:
+		return nil
+	}
+
+	sess.updateClients()
+
+	return nil
+}
+
 func (sess *Session) handleMove(move *chess.Move) bool {
 	if err := sess.game.Move(move); err != nil {
 		return false

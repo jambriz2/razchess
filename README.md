@@ -17,7 +17,7 @@
 ## Limitations
 * **Pawns can only be promoted to queen**
 * No timer
-* No option to resign or ask for a draw
+* No option to ask for a draw
 * No built-in chat
 * Not designed to be scalable, though it could work with sticky sessions or DNS load balancing
 * No built-in TLS/https handling, but you can use [razvhost](https://github.com/razzie/razvhost) for that

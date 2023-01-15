@@ -64,6 +64,14 @@ func getStatus(game *chess.Game) (string, bool) {
 	default:
 		fallthrough
 	case chess.NoMethod:
+		if game.Outcome() != chess.NoOutcome && game.Method() == chess.Resignation {
+			switch game.Outcome() {
+			case chess.WhiteWon:
+				return "Black resigned", true
+			case chess.BlackWon:
+				return "White resigned", true
+			}
+		}
 		status := turn + " to move"
 		if lastMove := getLastMove(game); lastMove != nil && lastMove.HasTag(chess.Check) {
 			status += ", " + strings.ToLower(turn) + " is in check"

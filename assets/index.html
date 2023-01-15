@@ -53,6 +53,10 @@
                     <a href="javascript:window.location.href='/custom/pgn:' + prompt('PGN:');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
                         <span class="mr-auto">Custom game from PGN</span>
                     </a>
+                    <hr />
+                    <a href="javascript:game.resign();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-red-400">
+                        <span class="mr-auto">Resign</span>
+                    </a>
                 </div>
             </div>
             <div id="status"></div>
