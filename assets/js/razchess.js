@@ -14,12 +14,6 @@ class Game {
             self.board.resize();
             self.colorSpecialSquares();
         });
-        $('#' + boardID).on('contextmenu', '.square-55d63', function(e) {
-            if (e.button === 2) {
-                $(this).toggleClass('highlight-square');
-                e.preventDefault();
-            }
-        })
     }
 
     connectToRPC() {
@@ -90,6 +84,12 @@ class Game {
         this.game = new Chess(update.fen);
         if (!this.board) {
             this.board = Chessboard(this.boardID, this.getBoardConfig());
+            this.$board.on('contextmenu', '.square-55d63', function(e) {
+                if (e.button === 2) {
+                    $(this).toggleClass('highlight-square');
+                    e.preventDefault();
+                }
+            })
         }
         this.board.position(update.fen);
         this.lastMove = update.move;
