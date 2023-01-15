@@ -37,7 +37,7 @@ func (sess *Session) init(slc *sessionLifecycle, game string) error {
 	return nil
 }
 
-// Session.Move is the only exposed RPC function
+// Session.Move is an RPC function that handles a move in [from][to] format (like e2e4)
 func (sess *Session) Move(move string, validMove *bool) error {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
@@ -82,6 +82,12 @@ func (sess *Session) handleMoveStr(moveStr string) bool {
 		}
 	}
 	return false
+}
+
+func (sess *Session) getMoveHistory() ([]*chess.Move, []*chess.Position) {
+	sess.mtx.Lock()
+	defer sess.mtx.Unlock()
+	return sess.game.Moves(), sess.game.Positions()
 }
 
 func (sess *Session) addClient(client *jsonrpc.JsonRPC) {

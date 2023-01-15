@@ -1,6 +1,8 @@
 package razchess
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -64,6 +66,15 @@ func (mgr *SessionMgr) ServeRPC(w http.ResponseWriter, r *http.Request, roomID s
 	}
 	sess := mgr.getOrCreateSession(roomID)
 	websocket.Handler(sess.serve).ServeHTTP(w, r)
+}
+
+func (mgr *SessionMgr) MoveHistoryToGIF(w io.Writer, roomID string) error {
+	sess, ok := mgr.sessions.Load(roomID)
+	if !ok {
+		return fmt.Errorf("session not found: %s", roomID)
+	}
+	moves, positions := sess.(*Session).getMoveHistory()
+	return MoveHistoryToGIF(w, moves, positions)
 }
 
 func (mgr *SessionMgr) getOrCreateSession(roomID string) *Session {

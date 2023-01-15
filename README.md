@@ -10,6 +10,7 @@
   * External puzzles can be loaded
 * Create custom games from FEN or PGN strings
 * Share the room/session link with as many people as you want, they can all watch or participate
+* Download your game as a GIF
 * Encyclopaedia of Chess Openings included
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 

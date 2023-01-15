@@ -75,6 +75,15 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		mgr.ServeRPC(w, r, roomID)
 	})
 
+	srv.HandleFunc("/gif/", func(w http.ResponseWriter, r *http.Request) {
+		roomID := r.URL.Path[5:]
+		w.Header().Set("Content-Disposition", "attachment; filename="+roomID+".gif")
+		w.Header().Set("Content-Type", "image/gif")
+		if err := mgr.MoveHistoryToGIF(w, roomID); err != nil {
+			http.Error(w, "Session not found", http.StatusNotFound)
+		}
+	})
+
 	return srv
 }
 
