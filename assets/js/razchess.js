@@ -11,8 +11,10 @@ class Game {
         this.connectToRPC();
         var self = this;
         $(window).resize(function() {
-            self.board.resize();
-            self.colorSpecialSquares();
+            if (self.board) {
+                self.board.resize();
+                self.colorSpecialSquares();
+            }
         });
     }
 
