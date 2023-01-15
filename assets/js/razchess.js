@@ -112,6 +112,7 @@ class Game {
         if (this.board) {
             this.board.flip();
             this.orientation = this.board.orientation();
+            this.colorSpecialSquares();
         }
     }
     
