@@ -1,4 +1,3 @@
-//var loadingSVG = $.ajax({url: '/img/loading.svg', async: false}).responseText;
 var loadingSVG = $('#loader').html();
 
 class Game {
@@ -6,7 +5,6 @@ class Game {
         this.roomID = roomID;
         this.boardID = boardID;
         this.$board = $('#' + boardID);
-        this.game = new Chess();
         this.setLoading();
         this.connectToRPC();
         var self = this;
@@ -52,7 +50,11 @@ class Game {
             this.board.destroy();
             this.board = null;
             if (this.onUpdate) {
-                this.onUpdate('Disconnected', '', this.lastFEN, this.lastPGN);
+                this.onUpdate({
+                    status: 'Disconnected',
+                    fen: this.state.fen,
+                    pgn: this.state.pgn
+                });
             }
             this.setLoading();
         }
@@ -60,7 +62,23 @@ class Game {
         setTimeout(() => { self.connectToRPC(); }, 5000);
     }
 
-    getBoardConfig() {
+    sendMove(move) {
+        return this.jrpc.call('Session.Move', [move]);
+    }
+
+    update(update) {
+        if (!this.board) {
+            this.createBoard();
+        }
+        this.board.position(update.fen);
+        this.state = update;
+        this.colorSpecialSquares();
+        if (this.onUpdate) {
+            this.onUpdate(update)
+        }
+    }
+
+    createBoard() {
         var self = this;
         var config = {
             draggable: true,
@@ -71,37 +89,14 @@ class Game {
                 return self.onDrop(source, target);
             }
         }
-        return config;
-    }
-
-    sendMove(san) {
-        var serverResponse = null;
-        this.jrpc.call('Session.Move', [san]).then(function(response) {
-            serverResponse = response;
-        });
-        return serverResponse;
-    }
-
-    update(update) {
-        this.game = new Chess(update.fen);
-        if (!this.board) {
-            this.board = Chessboard(this.boardID, this.getBoardConfig());
-            this.board.orientation(this.lastBoardOrientation);
-            this.$board.on('contextmenu', '.square-55d63', function(e) {
-                if (e.button === 2) {
-                    $(this).toggleClass('highlight-square');
-                    e.preventDefault();
-                }
-            })
-        }
-        this.board.position(update.fen);
-        this.lastMove = update.move;
-        this.lastFEN = update.fen;
-        this.lastPGN = update.pgn;
-        this.colorSpecialSquares();
-        if (this.onUpdate) {
-            this.onUpdate(this.getStatus(), update.opening, update.fen, update.pgn)
-        }
+        this.board = Chessboard(this.boardID, config);
+        this.board.orientation(this.orientation);
+        this.$board.on('contextmenu', '.square-55d63', function(e) {
+            if (e.button === 2) {
+                $(this).toggleClass('highlight-square');
+                e.preventDefault();
+            }
+        })
     }
 
     resize() {
@@ -112,58 +107,36 @@ class Game {
     flipBoard() {
         if (this.board) {
             this.board.flip();
-            this.lastBoardOrientation = this.board.orientation();
-        }
-    }
-
-    getStatus() {
-        var moveColor = (this.game.turn() === 'w' ? 'White' : 'Black');
-        if (this.game.in_checkmate()) {
-          return 'Game over, ' + moveColor + ' is in checkmate';
-        }
-        else if (this.game.in_draw()) {
-          return 'Game over, drawn position';
-        }
-        else {
-          var status = moveColor + ' to move';
-          if (this.game.in_check()) {
-            status += ', ' + moveColor + ' is in check';
-          }
-          return status;
+            this.orientation = this.board.orientation();
         }
     }
     
     colorSpecialSquares() {
         this.$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
-        if (this.lastMove) {
-            this.$board.find('.square-' + this.lastMove[0]).addClass('highlight-move');
-            this.$board.find('.square-' + this.lastMove[1]).addClass('highlight-move');
+        if (this.state.move) {
+            this.$board.find('.square-' + this.state.move[0]).addClass('highlight-move');
+            this.$board.find('.square-' + this.state.move[1]).addClass('highlight-move');
         }
-        if (this.game.in_check()) {
-            var color = this.game.turn();
-            var king = [].concat(...this.game.board()).find(p => p !== null && p.type === 'k' && p.color === color);
-            if (king) {
-                this.$board.find('.square-' + king.square).addClass('highlight-check');
-            }
+        if (this.state.checkedSquare) {
+            this.$board.find('.square-' + this.state.checkedSquare).addClass('highlight-check');
         }
     }
 
     onDragStart(source, piece, position, orientation) {
-        if (this.game.game_over()) return false;
-        if ((this.game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-            (this.game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+        if (this.state.isGameOver) return false;
+        if ((this.state.turn === 'White' && piece.search(/^b/) !== -1) ||
+            (this.state.turn === 'Black' && piece.search(/^w/) !== -1)) {
             return false;
         }
     }
     
     onDrop(source, target) {
-        var move = this.game.move({
-            from: source,
-            to: target,
-            promotion: 'q'
+        var board = this.board;
+        this.sendMove(source + target).then(function(valid) {
+            if (!valid) {
+                board.move(target + '-' + source);
+            }
         });
-        if (move === null) return 'snapback';
-        if (this.sendMove(move.san) == false) return 'snapback';
     }
 }
 
@@ -181,15 +154,15 @@ class Menu {
         navigator.clipboard.writeText(this.pgn);
     }
 
-    update(status, opening, fen, pgn) {
-        this.fen = fen;
-        this.pgn = pgn;
-        var html = '<span>' + status + '</span>';
-        if (opening) {
-            html = '<h1>' + opening + '</h1> - ' + status;
+    update(update) {
+        this.fen = update.fen;
+        this.pgn = update.pgn;
+        var html = '<span>' + update.status + '</span>';
+        if (update.opening) {
+            html = '<h1>' + update.opening + '</h1> - ' + html;
         }
         $('#status').html(html);
-        document.title = status + ' - RazChess'
+        document.title = update.status + ' - RazChess'
     }
 }
 

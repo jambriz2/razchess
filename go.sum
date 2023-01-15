@@ -11,6 +11,10 @@ github.com/notnil/chess v1.9.0/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94Dd
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
 github.com/onsi/gomega v1.18.1 h1:M1GfJqGRrBrrGGsbxzV5dqM2U2ApXefZCQpkukxYRLE=
+github.com/razzie/chess v1.9.0-c26649c h1:YBSgDZKahS2WrOgjgIf8mMM0l8IW9+PAvC4+8aoNzFo=
+github.com/razzie/chess v1.9.0-c26649c/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
+github.com/razzie/chess v1.9.0 h1:OZhExcBBCvloyAwPHzKFo4lx4J6pnVgJsTg2f02z3Yo=
+github.com/razzie/chess v1.9.0/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
 github.com/razzie/jsonrpc v0.0.0-20221223162308-de029c6ea229 h1:wFEFbw5G/ZLTGj2lrR+H1UFqowJN4M9779tlSGpQfDI=
 github.com/razzie/jsonrpc v0.0.0-20221223162308-de029c6ea229/go.mod h1:V5HzvG3odUoKbsyB7TWiWiNnULcME4qwbTXyDXIEi7Q=
 github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5 h1:m+4Ojb23zEFgJiU1Z+R9GSzErG9nzYFqY/5++fPB7hc=

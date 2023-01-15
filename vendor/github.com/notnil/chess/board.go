@@ -46,6 +46,16 @@ func NewBoard(m map[Square]Piece) *Board {
 	return b
 }
 
+// WhiteKingSquare returns the white king's square
+func (b *Board) WhiteKingSquare() Square {
+	return b.whiteKingSq
+}
+
+// BlackKingSquare returns the white king's square
+func (b *Board) BlackKingSquare() Square {
+	return b.blackKingSq
+}
+
 // SquareMap returns a mapping of squares to pieces.  A square is only added to the map if it is occupied.
 func (b *Board) SquareMap() map[Square]Piece {
 	m := map[Square]Piece{}

@@ -30,6 +30,7 @@ func (sess *Session) init(slc *sessionLifecycle, game string) error {
 	if err != nil {
 		return err
 	}
+	opts = append(opts, chess.UseNotation(chess.UCINotation{}))
 	sess.slc = slc
 	sess.game = chess.NewGame(opts...)
 	sess.isCustom = isCustom
@@ -37,11 +38,11 @@ func (sess *Session) init(slc *sessionLifecycle, game string) error {
 }
 
 // Session.Move is the only exposed RPC function
-func (sess *Session) Move(san string, validMove *bool) error {
+func (sess *Session) Move(move string, validMove *bool) error {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 
-	*validMove = sess.handleMoveSAN(san)
+	*validMove = sess.handleMoveStr(move)
 	if !*validMove {
 		return nil
 	}
@@ -69,11 +70,18 @@ func (sess *Session) handleMove(move *chess.Move) bool {
 	return true
 }
 
-func (sess *Session) handleMoveSAN(san string) bool {
-	if err := sess.game.MoveStr(san); err != nil {
+func (sess *Session) handleMoveStr(moveStr string) bool {
+	if len(moveStr) != 4 {
 		return false
 	}
-	return true
+	sq1 := moveStr[0:2]
+	sq2 := moveStr[2:4]
+	for _, move := range sess.game.ValidMoves() {
+		if move.S1().String() == sq1 && move.S2().String() == sq2 {
+			return sess.handleMove(move)
+		}
+	}
+	return false
 }
 
 func (sess *Session) addClient(client *jsonrpc.JsonRPC) {

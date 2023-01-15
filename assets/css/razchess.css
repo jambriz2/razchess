@@ -17,15 +17,17 @@ h1 {
     display: inline;
 }
 #menuBar {
+    display: flex;
     position: absolute;
     left: 0;
     top: 0;
     padding: 12px;
     width: 100%;
     z-index: 99999;
+    white-space: nowrap;
 }
 #status span {
-    display: flex;
+    display: inline-flex;
     overflow: hidden;
     white-space: nowrap;
     margin: auto 0;
