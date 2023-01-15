@@ -30,7 +30,6 @@ func (sess *Session) init(slc *sessionLifecycle, game string) error {
 	if err != nil {
 		return err
 	}
-	opts = append(opts, chess.UseNotation(chess.UCINotation{}))
 	sess.slc = slc
 	sess.game = chess.NewGame(opts...)
 	sess.isCustom = isCustom

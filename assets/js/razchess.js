@@ -135,10 +135,10 @@ class Game {
     }
     
     onDrop(source, target) {
-        var board = this.board;
+        var game = this;
         this.sendMove(source + target).then(function(valid) {
             if (!valid) {
-                board.move(target + '-' + source);
+                game.board.position(game.state.fen);
             }
         });
     }
