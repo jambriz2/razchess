@@ -86,6 +86,7 @@ class Game {
         this.game = new Chess(update.fen);
         if (!this.board) {
             this.board = Chessboard(this.boardID, this.getBoardConfig());
+            this.board.orientation(this.lastBoardOrientation);
             this.$board.on('contextmenu', '.square-55d63', function(e) {
                 if (e.button === 2) {
                     $(this).toggleClass('highlight-square');
@@ -106,6 +107,13 @@ class Game {
     resize() {
         this.board.resize();
         this.colorSpecialSquares();
+    }
+
+    flipBoard() {
+        if (this.board) {
+            this.board.flip();
+            this.lastBoardOrientation = this.board.orientation();
+        }
     }
 
     getStatus() {
