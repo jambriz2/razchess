@@ -37,6 +37,7 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 	srv.Handle("/img/", http.FileServer(http.FS(assets)))
 	srv.Handle("/css/", http.FileServer(http.FS(assets)))
 	srv.Handle("/js/", http.FileServer(http.FS(assets)))
+	srv.Handle("/sounds/", http.FileServer(http.FS(assets)))
 
 	srv.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.Path) <= 1 {

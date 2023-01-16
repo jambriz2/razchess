@@ -1,4 +1,11 @@
 var loadingSVG = $('#loader').html();
+var sounds = {
+    move: new Audio('/sounds/move.ogg'),
+    capture: new Audio('/sounds/capture.ogg'),
+    check: new Audio('/sounds/check.ogg'),
+    illegal: new Audio('/sounds/illegal.ogg'),
+    gameOver: new Audio('/sounds/game-over.ogg')
+};
 
 class Game {
     constructor(roomID, boardID) {
@@ -73,12 +80,26 @@ class Game {
     update(update) {
         if (!this.board) {
             this.createBoard();
+        } else {
+            this.playSound(update);
         }
         this.board.position(update.fen);
         this.state = update;
         this.colorSpecialSquares();
         if (this.onUpdate) {
-            this.onUpdate(update)
+            this.onUpdate(update);
+        }
+    }
+
+    playSound(update) {
+        if (update.isGameOver) {
+            sounds.gameOver.play();
+        } else if (update.isCapture) {
+            sounds.capture.play();
+        } else if (update.checkedSquare) {
+            sounds.check.play();
+        } else if (update.move) {
+            sounds.move.play();
         }
     }
 
@@ -96,11 +117,9 @@ class Game {
         this.board = Chessboard(this.boardID, config);
         this.board.orientation(this.orientation);
         this.$board.on('contextmenu', '.square-55d63', function(e) {
-            if (e.button === 2) {
-                $(this).toggleClass('highlight-square');
-                e.preventDefault();
-            }
-        })
+            $(this).toggleClass('highlight-square');
+            e.preventDefault();
+        });
     }
 
     resize() {
@@ -140,6 +159,7 @@ class Game {
         this.sendMove(source + target).then(function(valid) {
             if (!valid) {
                 game.board.position(game.state.fen);
+                sounds.illegal.play();
             }
         });
     }

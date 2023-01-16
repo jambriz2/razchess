@@ -12,26 +12,30 @@ var book opening.Book = opening.NewBookECO()
 type Move [2]string
 
 type Update struct {
+	Move          Move   `json:"move,omitempty"`
+	Turn          string `json:"turn"`
+	Status        string `json:"status"`
 	FEN           string `json:"fen,omitempty"`
 	PGN           string `json:"pgn,omitempty"`
-	LastMove      Move   `json:"move,omitempty"`
 	Opening       string `json:"opening,omitempty"`
-	Status        string `json:"status"`
+	IsCapture     bool   `json:"isCapture"`
 	IsGameOver    bool   `json:"isGameOver"`
-	Turn          string `json:"turn"`
 	CheckedSquare string `json:"checkedSquare,omitempty"`
 }
 
 func newUpdate(game *chess.Game) *Update {
 	u := &Update{
+		Turn: game.Position().Turn().Name(),
 		FEN:  game.FEN(),
 		PGN:  game.String()[1:],
-		Turn: game.Position().Turn().Name(),
 	}
 	u.Status, u.IsGameOver = getStatus(game)
 	if lastMove := getLastMove(game); lastMove != nil {
-		u.LastMove[0] = lastMove.S1().String()
-		u.LastMove[1] = lastMove.S2().String()
+		u.Move[0] = lastMove.S1().String()
+		u.Move[1] = lastMove.S2().String()
+		if lastMove.HasTag(chess.Capture) {
+			u.IsCapture = true
+		}
 		if lastMove.HasTag(chess.Check) {
 			if game.Position().Turn() == chess.White {
 				u.CheckedSquare = game.Position().Board().WhiteKingSquare().String()
