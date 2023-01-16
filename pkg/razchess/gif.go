@@ -2,13 +2,16 @@ package razchess
 
 import (
 	"image"
+	"image/color"
+	"image/draw"
 	"image/gif"
 	"io"
 
-	"github.com/andybons/gogif"
 	"github.com/notnil/chess"
 	"github.com/razzie/chessimage"
 )
+
+var palette = getPalette()
 
 func MoveHistoryToGIF(w io.Writer, moves []*chess.Move, positions []*chess.Position) error {
 	var images []image.Image
@@ -57,7 +60,10 @@ func moveToImage(pos *chess.Position, move *chess.Move) (image.Image, error) {
 		}
 	}
 
-	return r.Render(chessimage.Options{})
+	return r.Render(chessimage.Options{
+		PieceRatio: 1,
+		BoardSize:  512,
+	})
 }
 
 func convertImagesToGif(w io.Writer, images []image.Image, delay int) error {
@@ -66,11 +72,46 @@ func convertImagesToGif(w io.Writer, images []image.Image, delay int) error {
 	}
 	for _, img := range images {
 		bounds := img.Bounds()
-		palettedImage := image.NewPaletted(bounds, nil)
-		quantizer := gogif.MedianCutQuantizer{NumColor: 64}
-		quantizer.Quantize(palettedImage, bounds, img, image.Point{})
+		palettedImage := image.NewPaletted(bounds, palette)
+		draw.Draw(palettedImage, bounds, img, image.Point{}, draw.Over)
 		outGif.Image = append(outGif.Image, palettedImage)
 		outGif.Delay = append(outGif.Delay, delay)
 	}
 	return gif.EncodeAll(w, outGif)
+}
+
+func rgb(r, g, b uint8) color.Color {
+	return &color.RGBA{R: r, G: g, B: b, A: 255}
+}
+
+func mix(c1, c2 color.Color) color.Color {
+	r1, g1, b1, _ := c1.RGBA()
+	r2, g2, b2, _ := c2.RGBA()
+	return &color.RGBA{
+		R: uint8((r1 + r2) / 2),
+		G: uint8((g1 + g2) / 2),
+		B: uint8((b1 + b2) / 2),
+		A: 255,
+	}
+}
+
+func getPalette() []color.Color {
+	lightSq := rgb(240, 217, 181)
+	darkSq := rgb(181, 136, 99)
+	lightSqHigh := rgb(247, 193, 99)
+	darkSqHigh := rgb(215, 149, 54)
+	check := rgb(255, 0, 0)
+
+	var palette []color.Color
+	pieceColors := []color.Color{color.White, color.Black, &color.Gray{Y: 128}}
+	sqColors := []color.Color{lightSq, darkSq, lightSqHigh, darkSqHigh, check}
+
+	palette = append(palette, pieceColors...)
+	palette = append(palette, sqColors...)
+	for _, pieceColor := range pieceColors {
+		for _, sqColor := range sqColors {
+			palette = append(palette, mix(pieceColor, sqColor))
+		}
+	}
+	return palette
 }

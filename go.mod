@@ -3,7 +3,6 @@ module github.com/razzie/razchess
 go 1.19
 
 require (
-	github.com/andybons/gogif v0.0.0-20140526152223-16d573594812
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/notnil/chess v1.9.0-c26649c
 	github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373
