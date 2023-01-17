@@ -26,6 +26,9 @@ h1 {
     z-index: 99999;
     white-space: nowrap;
 }
+#menu {
+    color: #4b4b4b;
+}
 #status span {
     display: inline-flex;
     overflow: hidden;
