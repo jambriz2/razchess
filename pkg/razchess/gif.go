@@ -50,12 +50,7 @@ func moveToImage(pos *chess.Position, move *chess.Move) (image.Image, error) {
 			To:   to,
 		})
 		if move.HasTag(chess.Check) {
-			var kingSq chessimage.Tile
-			if pos.Turn() == chess.White {
-				kingSq, _ = chessimage.TileFromAN(pos.Board().WhiteKingSquare().String())
-			} else {
-				kingSq, _ = chessimage.TileFromAN(pos.Board().BlackKingSquare().String())
-			}
+			kingSq, _ := chessimage.TileFromAN(pos.Board().KingSquare(pos.Turn()).String())
 			r.SetCheckTile(kingSq)
 		}
 	}

@@ -37,11 +37,7 @@ func newUpdate(game *chess.Game) *Update {
 			u.IsCapture = true
 		}
 		if lastMove.HasTag(chess.Check) {
-			if game.Position().Turn() == chess.White {
-				u.CheckedSquare = game.Position().Board().WhiteKingSquare().String()
-			} else {
-				u.CheckedSquare = game.Position().Board().BlackKingSquare().String()
-			}
+			u.CheckedSquare = game.Position().Board().KingSquare(game.Position().Turn()).String()
 		}
 	}
 	if opening := book.Find(game.Moves()); opening != nil {

@@ -46,13 +46,11 @@ func NewBoard(m map[Square]Piece) *Board {
 	return b
 }
 
-// WhiteKingSquare returns the white king's square
-func (b *Board) WhiteKingSquare() Square {
-	return b.whiteKingSq
-}
-
-// BlackKingSquare returns the white king's square
-func (b *Board) BlackKingSquare() Square {
+// KingSquare returns the king's square of the given color
+func (b *Board) KingSquare(c Color) Square {
+	if c == White {
+		return b.whiteKingSq
+	}
 	return b.blackKingSq
 }
 
@@ -231,14 +229,16 @@ func (b *Board) update(m *Move) {
 	s2BB := bbForSquare(m.s2)
 
 	// move s1 piece to s2
-	for _, p := range allPieces {
-		bb := b.bbForPiece(p)
-		// remove what was at s2
-		b.setBBForPiece(p, bb & ^s2BB)
-		// move what was at s1 to s2
-		if bb.Occupied(m.s1) {
-			bb = b.bbForPiece(p)
-			b.setBBForPiece(p, (bb & ^s1BB)|s2BB)
+	if !m.HasTag(KingSideCastle) && !m.HasTag(QueenSideCastle) {
+		for _, p := range allPieces {
+			bb := b.bbForPiece(p)
+			// remove what was at s2
+			b.setBBForPiece(p, bb & ^s2BB)
+			// move what was at s1 to s2
+			if bb.Occupied(m.s1) {
+				bb = b.bbForPiece(p)
+				b.setBBForPiece(p, (bb & ^s1BB)|s2BB)
+			}
 		}
 	}
 	// check promotion
@@ -259,15 +259,20 @@ func (b *Board) update(m *Move) {
 			b.bbWhitePawn = ^(bbForSquare(m.s2) >> 8) & b.bbWhitePawn
 		}
 	}
-	// move rook for castle
+	// move rook and king for castle
+	queenSideRookSq, kingSideRookSq := b.castlingRookSquares(p1.Color())
 	if p1.Color() == White && m.HasTag(KingSideCastle) {
-		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(H1) | bbForSquare(F1))
+		b.bbWhiteKing = bbForSquare(G1)
+		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(kingSideRookSq) | bbForSquare(F1))
 	} else if p1.Color() == White && m.HasTag(QueenSideCastle) {
-		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(A1)) | bbForSquare(D1)
+		b.bbWhiteKing = bbForSquare(C1)
+		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(queenSideRookSq)) | bbForSquare(D1)
 	} else if p1.Color() == Black && m.HasTag(KingSideCastle) {
-		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(H8) | bbForSquare(F8))
+		b.bbBlackKing = bbForSquare(G8)
+		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(kingSideRookSq) | bbForSquare(F8))
 	} else if p1.Color() == Black && m.HasTag(QueenSideCastle) {
-		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(A8)) | bbForSquare(D8)
+		b.bbBlackKing = bbForSquare(C8)
+		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(queenSideRookSq)) | bbForSquare(D8)
 	}
 	b.calcConvienceBBs(m)
 }
@@ -291,11 +296,44 @@ func (b *Board) calcConvienceBBs(m *Move) {
 				b.blackKingSq = sqr
 			}
 		}
-	} else if m.s1 == b.whiteKingSq {
+	} else if m.s1 == b.whiteKingSq && !m.HasTag(KingSideCastle) && !m.HasTag(QueenSideCastle) {
 		b.whiteKingSq = m.s2
-	} else if m.s1 == b.blackKingSq {
+	} else if m.s1 == b.blackKingSq && !m.HasTag(KingSideCastle) && !m.HasTag(QueenSideCastle) {
 		b.blackKingSq = m.s2
 	}
+}
+
+// castlingRookSquares returns the queen side and king side rook squares
+func (b *Board) castlingRookSquares(c Color) (queenSide, kingSide Square) {
+	queenSide = NoSquare
+	kingSide = NoSquare
+
+	if b.bbForPiece(NewPiece(King, c)) == 0 {
+		return
+	}
+	kingSq := b.KingSquare(c)
+	rank := kingSq.Rank()
+	kingFile := kingSq.File()
+	bbRook := b.bbForPiece(NewPiece(Rook, c))
+
+	// get queen side rook
+	for file := FileA; file < kingFile; file++ {
+		sq := NewSquare(file, rank)
+		if bbRook.Occupied(sq) {
+			queenSide = sq
+			break
+		}
+	}
+	// get king side rook
+	for file := FileH; file > kingFile; file-- {
+		sq := NewSquare(file, rank)
+		if bbRook.Occupied(sq) {
+			kingSide = sq
+			break
+		}
+	}
+
+	return
 }
 
 func (b *Board) copy() *Board {

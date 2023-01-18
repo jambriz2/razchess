@@ -5,6 +5,7 @@
 * Super easy to create your own session
   * Visit the website and get redirected to your own session
   * Create your own custom room name {razchess-host}/room/{custom-room-name}
+* Play Fischer random (chess960) games
 * Play chess puzzles!
   * 220x built-in mate-in-2-steps puzzles
   * External puzzles can be loaded

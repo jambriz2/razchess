@@ -200,47 +200,66 @@ func bbForPossibleMoves(pos *Position, pt PieceType, sq Square) bitboard {
 	return bitboard(0)
 }
 
+func bbFileRange(sq Square, otherFiles ...File) (bb bitboard) {
+	rank := sq.Rank()
+	lowFile := sq.File()
+	highFile := sq.File()
+	for _, file := range otherFiles {
+		if file < lowFile {
+			lowFile = file
+		} else if file > highFile {
+			highFile = file
+		}
+	}
+	for file := lowFile; file <= highFile; file++ {
+		bb |= bbForSquare(NewSquare(file, rank))
+	}
+	return
+}
+
+func sqFileRange(sq Square, otherFile File) (sqs []Square) {
+	rank := sq.Rank()
+	lowFile, highFile := sq.File(), otherFile
+	if lowFile > highFile {
+		lowFile, highFile = highFile, lowFile
+	}
+	for file := lowFile; file <= highFile; file++ {
+		sqs = append(sqs, NewSquare(file, rank))
+	}
+	return
+}
+
 // TODO can calc isInCheck twice
 func castleMoves(pos *Position) []*Move {
 	moves := []*Move{}
-	kingSide := pos.castleRights.CanCastle(pos.Turn(), KingSide)
-	queenSide := pos.castleRights.CanCastle(pos.Turn(), QueenSide)
-	// white king side
-	if pos.turn == White && kingSide &&
-		(^pos.board.emptySqs&(bbForSquare(F1)|bbForSquare(G1))) == 0 &&
-		!squaresAreAttacked(pos, F1, G1) &&
-		!pos.inCheck {
-		m := &Move{s1: E1, s2: G1}
+	c := pos.Turn()
+	kingSide := pos.castleRights.CanCastle(c, KingSide)
+	queenSide := pos.castleRights.CanCastle(c, QueenSide)
+	if pos.inCheck || (!kingSide && !queenSide) {
+		return moves
+	}
+	kingSq := pos.board.KingSquare(c)
+	queenSideRookSq, kingSideRookSq := pos.board.castlingRookSquares(c)
+	if kingSide &&
+		^pos.board.emptySqs&bbFileRange(kingSq, kingSideRookSq.File(), FileF, FileG)&^bbForSquare(kingSideRookSq)&^bbForSquare(kingSq) == 0 &&
+		!squaresAreAttacked(pos, sqFileRange(kingSq, FileG)...) {
+		targetSq := kingSideRookSq
+		if kingSq.File() == FileE && targetSq.File() == FileH {
+			targetSq = NewSquare(FileG, kingSq.Rank())
+		}
+		m := &Move{s1: kingSq, s2: targetSq}
 		m.addTag(KingSideCastle)
 		addTags(m, pos)
 		moves = append(moves, m)
 	}
-	// white queen side
-	if pos.turn == White && queenSide &&
-		(^pos.board.emptySqs&(bbForSquare(B1)|bbForSquare(C1)|bbForSquare(D1))) == 0 &&
-		!squaresAreAttacked(pos, C1, D1) &&
-		!pos.inCheck {
-		m := &Move{s1: E1, s2: C1}
-		m.addTag(QueenSideCastle)
-		addTags(m, pos)
-		moves = append(moves, m)
-	}
-	// black king side
-	if pos.turn == Black && kingSide &&
-		(^pos.board.emptySqs&(bbForSquare(F8)|bbForSquare(G8))) == 0 &&
-		!squaresAreAttacked(pos, F8, G8) &&
-		!pos.inCheck {
-		m := &Move{s1: E8, s2: G8}
-		m.addTag(KingSideCastle)
-		addTags(m, pos)
-		moves = append(moves, m)
-	}
-	// black queen side
-	if pos.turn == Black && queenSide &&
-		(^pos.board.emptySqs&(bbForSquare(B8)|bbForSquare(C8)|bbForSquare(D8))) == 0 &&
-		!squaresAreAttacked(pos, C8, D8) &&
-		!pos.inCheck {
-		m := &Move{s1: E8, s2: C8}
+	if queenSide &&
+		^pos.board.emptySqs&bbFileRange(kingSq, queenSideRookSq.File(), FileC, FileD)&^bbForSquare(queenSideRookSq)&^bbForSquare(kingSq) == 0 &&
+		!squaresAreAttacked(pos, sqFileRange(kingSq, FileC)...) {
+		targetSq := queenSideRookSq
+		if kingSq.File() == FileE && targetSq.File() == FileA {
+			targetSq = NewSquare(FileC, kingSq.Rank())
+		}
+		m := &Move{s1: kingSq, s2: targetSq}
 		m.addTag(QueenSideCastle)
 		addTags(m, pos)
 		moves = append(moves, m)

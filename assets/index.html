@@ -26,7 +26,10 @@
                      x-transition:leave-end="transform opacity-0 scale-95"
                      class="options absolute bg-white text-gray-600 origin-top-left left-1 mt-2 w-56 rounded-md shadow-lg overflow-hidden">
                     <a href="/" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                        <span class="mr-auto">New session</span>
+                        <span class="mr-auto">New game</span>
+                    </a>
+                    <a href="/fischer-random" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
+                        <span class="mr-auto">New Fischer random game</span>
                     </a>
                     <a href="/puzzle" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
                         <span class="mr-auto">Play a puzzle</span>

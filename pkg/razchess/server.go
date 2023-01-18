@@ -71,6 +71,10 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		srv.serveSession(w, r, puzzles[puzzleID], false)
 	})
 
+	srv.HandleFunc("/fischer-random", func(w http.ResponseWriter, r *http.Request) {
+		srv.serveSession(w, r, GenerateFischerRandomFEN(), true)
+	})
+
 	srv.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		roomID := r.URL.Path[4:]
 		mgr.ServeRPC(w, r, roomID)

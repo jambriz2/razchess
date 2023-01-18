@@ -67,6 +67,10 @@ func (sess *Session) Resign(color string, unused *bool) error {
 	sess.mtx.Lock()
 	defer sess.mtx.Unlock()
 
+	if sess.game.Outcome() != chess.NoOutcome {
+		return nil
+	}
+
 	switch color {
 	case "White":
 		sess.game.Resign(chess.White)
