@@ -46,7 +46,7 @@ func GenerateFischerRandomFEN() string {
 	setup[king] = 'k'
 	// rooks
 	leftRook := rnd.Intn(king)
-	rightRook := rnd.Intn(8-king) + king + 1
+	rightRook := rnd.Intn(7-king) + king + 1
 	setup[leftRook] = 'r'
 	setup[rightRook] = 'r'
 	// bishops
