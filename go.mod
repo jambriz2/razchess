@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/notnil/chess v1.9.0-e0d666
+	github.com/notnil/chess v1.9.0-1491673
 	github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373
 	github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5
 	golang.org/x/net v0.4.0
@@ -18,4 +18,4 @@ require (
 	golang.org/x/image v0.3.0 // indirect
 )
 
-replace github.com/notnil/chess => github.com/razzie/chess v1.9.0-e0d666
+replace github.com/notnil/chess => github.com/razzie/chess v1.9.0-1491673

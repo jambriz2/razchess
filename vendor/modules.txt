@@ -21,7 +21,7 @@ github.com/go-redis/redis/v8/internal/util
 ## explicit
 github.com/golang/freetype/raster
 github.com/golang/freetype/truetype
-# github.com/notnil/chess v1.9.0-e0d666 => github.com/razzie/chess v1.9.0-e0d666
+# github.com/notnil/chess v1.9.0-1491673 => github.com/razzie/chess v1.9.0-1491673
 ## explicit; go 1.14
 github.com/notnil/chess
 github.com/notnil/chess/opening
@@ -41,4 +41,4 @@ golang.org/x/image/math/fixed
 # golang.org/x/net v0.4.0
 ## explicit; go 1.17
 golang.org/x/net/websocket
-# github.com/notnil/chess => github.com/razzie/chess v1.9.0-e0d666
+# github.com/notnil/chess => github.com/razzie/chess v1.9.0-1491673

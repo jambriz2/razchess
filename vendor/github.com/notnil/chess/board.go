@@ -262,15 +262,19 @@ func (b *Board) update(m *Move) {
 	// move rook and king for castle
 	queenSideRookSq, kingSideRookSq := b.castlingRookSquares(p1.Color())
 	if p1.Color() == White && m.HasTag(KingSideCastle) {
+		b.whiteKingSq = G1
 		b.bbWhiteKing = bbForSquare(G1)
 		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(kingSideRookSq) | bbForSquare(F1))
 	} else if p1.Color() == White && m.HasTag(QueenSideCastle) {
+		b.whiteKingSq = C1
 		b.bbWhiteKing = bbForSquare(C1)
 		b.bbWhiteRook = (b.bbWhiteRook & ^bbForSquare(queenSideRookSq)) | bbForSquare(D1)
 	} else if p1.Color() == Black && m.HasTag(KingSideCastle) {
+		b.blackKingSq = G8
 		b.bbBlackKing = bbForSquare(G8)
 		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(kingSideRookSq) | bbForSquare(F8))
 	} else if p1.Color() == Black && m.HasTag(QueenSideCastle) {
+		b.blackKingSq = C8
 		b.bbBlackKing = bbForSquare(C8)
 		b.bbBlackRook = (b.bbBlackRook & ^bbForSquare(queenSideRookSq)) | bbForSquare(D8)
 	}
