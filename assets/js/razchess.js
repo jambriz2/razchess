@@ -66,7 +66,7 @@ class Game {
             this.setLoading();
         }
         var self = this;
-        setTimeout(() => { self.connectToRPC(); }, 5000);
+        setTimeout(() => { self.connectToRPC(); }, 1000);
     }
 
     sendMove(move) {
