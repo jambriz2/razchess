@@ -118,7 +118,7 @@
                         </svg>
                     </a>
                     <hr />
-                    <a href="javascript:window.location.href='/custom/fen:' + prompt('FEN:');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <a href="javascript:newCustomGame('fen');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
                         <span class="mr-auto">Custom game from FEN</span>
                         <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
                           <g transform="matrix(1.05 0 0 1.05 12 12)" >
@@ -126,7 +126,7 @@
                           </g>
                         </svg>
                     </a>
-                    <a href="javascript:window.location.href='/custom/pgn:' + prompt('PGN:');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <a href="javascript:newCustomGame('pgn');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
                         <span class="mr-auto">Custom game from PGN</span>
                         <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
                           <g transform="matrix(1.05 0 0 1.05 12 12)" >

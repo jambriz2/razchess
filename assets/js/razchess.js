@@ -191,6 +191,14 @@ class Menu {
     }
 }
 
+function newCustomGame(type) {
+    params = prompt('Please insert the text representation of the game (' + type + '):');
+    if (!params) {
+        return;
+    }
+    window.location.href='/custom/' + type + ':' + params;
+}
+
 var roomID = $('#roomID').val();
 var menu = new Menu();
 var game = new Game(roomID, 'board');
