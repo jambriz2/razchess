@@ -116,8 +116,8 @@ class Game {
             onDragStart: function(source, piece, position, orientation) {
                 return self.#onDragStart(source, piece, position, orientation);
             },
-            onDrop: function(source, target) {
-                return self.#onDrop(source, target);
+            onDrop: function(source, target, piece) {
+                return self.#onDrop(source, target, piece);
             }
         }
         this.#board = Chessboard(this.#boardID, config);
@@ -162,9 +162,13 @@ class Game {
         }
     }
     
-    #onDrop(source, target) {
+    #onDrop(source, target, piece) {
         var game = this;
-        this.sendMove(source + target).then(function(valid) {
+        var move = source + target;
+        if ((piece === 'wP' && target.charAt(1) === '8') || (piece === 'bP' && target.charAt(1) === '1')) {
+            move += 'q';
+        }
+        this.sendMove(move).then(function(valid) {
             if (!valid) {
                 game.#board.position(game.#state.fen);
                 sounds.illegal.play();

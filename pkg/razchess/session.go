@@ -93,17 +93,11 @@ func (sess *Session) handleMove(move *chess.Move) bool {
 }
 
 func (sess *Session) handleMoveStr(moveStr string) bool {
-	if len(moveStr) != 4 {
+	move, err := chess.UCINotation{}.Decode(sess.game.Position(), moveStr)
+	if err != nil {
 		return false
 	}
-	sq1 := moveStr[0:2]
-	sq2 := moveStr[2:4]
-	for _, move := range sess.game.ValidMoves() {
-		if move.S1().String() == sq1 && move.S2().String() == sq2 {
-			return sess.handleMove(move)
-		}
-	}
-	return false
+	return sess.handleMove(move)
 }
 
 func (sess *Session) getMoveHistory() ([]*chess.Move, []*chess.Position) {
