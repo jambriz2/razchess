@@ -8,25 +8,31 @@ var sounds = {
 };
 
 class Game {
+    #roomID;
+    #boardID;
+    #board;
+    #$board;
+    #orientation;
+    #state;
+    #jrpc;
+    onUpdate;
+
     constructor(roomID, boardID) {
-        this.roomID = roomID;
-        this.boardID = boardID;
-        this.$board = $('#' + boardID);
-        this.setLoading();
-        this.connectToRPC();
+        this.#roomID = roomID;
+        this.#boardID = boardID;
+        this.#$board = $('#' + boardID);
+        this.#setLoading();
+        this.#connectToRPC();
         var self = this;
         $(window).resize(function() {
-            if (self.board) {
-                self.board.resize();
-                self.colorSpecialSquares();
-            }
+            self.#resize();
         });
     }
 
-    connectToRPC() {
+    #connectToRPC() {
         var self = this;
         var jrpc = new simple_jsonrpc();
-        var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + roomID);
+        var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + this.#roomID);
         jrpc.on('Session.Update', function(update) {
             self.update(update);
             return true;
@@ -39,59 +45,59 @@ class Game {
         };
         socket.onerror = function(error) {
             console.error("Error: " + error.message);
-            self.handleDisconnect(error);
+            self.#handleDisconnect(error);
         };
         socket.onclose = function(event) {
             console.info('close code : ' + event.code + ' reason: ' + event.reason + ' clean: ' + event.wasClean);
-            self.handleDisconnect(event);
+            self.#handleDisconnect(event);
         };
-        this.jrpc = jrpc;
+        this.#jrpc = jrpc;
     }
 
-    setLoading() {
-        this.$board.html('<div class="loading">' + loadingSVG + '</div>');
+    #setLoading() {
+        this.#$board.html('<div class="loading">' + loadingSVG + '</div>');
     }
 
-    handleDisconnect() {
-        if (this.board) {
-            this.board.destroy();
-            this.board = null;
+    #handleDisconnect() {
+        if (this.#board) {
+            this.#board.destroy();
+            this.#board = null;
             if (this.onUpdate) {
                 this.onUpdate({
                     status: 'Disconnected',
-                    fen: this.state.fen,
-                    pgn: this.state.pgn
+                    fen: this.#state.fen,
+                    pgn: this.#state.pgn
                 });
             }
-            this.setLoading();
+            this.#setLoading();
         }
         var self = this;
-        setTimeout(() => { self.connectToRPC(); }, 1000);
+        setTimeout(() => { self.#connectToRPC(); }, 1000);
     }
 
     sendMove(move) {
-        return this.jrpc.call('Session.Move', [move]);
+        return this.#jrpc.call('Session.Move', [move]);
     }
 
     resign() {
-        return this.jrpc.call('Session.Resign', [this.state.turn]);
+        return this.#jrpc.call('Session.Resign', [this.#state.turn]);
     }
 
     update(update) {
-        if (!this.board) {
-            this.createBoard();
+        if (!this.#board) {
+            this.#createBoard();
         } else {
-            this.playSound(update);
+            this.#playSound(update);
         }
-        this.board.position(update.fen);
-        this.state = update;
-        this.colorSpecialSquares();
+        this.#board.position(update.fen);
+        this.#state = update;
+        this.#colorSpecialSquares();
         if (this.onUpdate) {
             this.onUpdate(update);
         }
     }
 
-    playSound(update) {
+    #playSound(update) {
         if (update.isGameOver) {
             sounds.gameOver.play();
         } else if (update.isCapture) {
@@ -103,62 +109,64 @@ class Game {
         }
     }
 
-    createBoard() {
+    #createBoard() {
         var self = this;
         var config = {
             draggable: true,
             onDragStart: function(source, piece, position, orientation) {
-                return self.onDragStart(source, piece, position, orientation);
+                return self.#onDragStart(source, piece, position, orientation);
             },
             onDrop: function(source, target) {
-                return self.onDrop(source, target);
+                return self.#onDrop(source, target);
             }
         }
-        this.board = Chessboard(this.boardID, config);
-        this.board.orientation(this.orientation);
-        this.$board.on('contextmenu', '.square-55d63', function(e) {
+        this.#board = Chessboard(this.#boardID, config);
+        this.#board.orientation(this.#orientation);
+        this.#$board.on('contextmenu', '.square-55d63', function(e) {
             $(this).toggleClass('highlight-square');
             e.preventDefault();
         });
     }
 
-    resize() {
-        this.board.resize();
-        this.colorSpecialSquares();
+    #resize() {
+        if (this.#board) {
+            this.#board.resize();
+            this.#colorSpecialSquares();
+        }
     }
 
     flipBoard() {
-        if (this.board) {
-            this.board.flip();
-            this.orientation = this.board.orientation();
-            this.colorSpecialSquares();
+        if (this.#board) {
+            this.#board.flip();
+            this.#orientation = this.#board.orientation();
+            this.#colorSpecialSquares();
         }
     }
     
-    colorSpecialSquares() {
-        this.$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
-        if (this.state.move) {
-            this.$board.find('.square-' + this.state.move[0]).addClass('highlight-move');
-            this.$board.find('.square-' + this.state.move[1]).addClass('highlight-move');
+    #colorSpecialSquares() {
+        this.#$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
+        if (this.#state.move) {
+            this.#$board.find('.square-' + this.#state.move[0]).addClass('highlight-move');
+            this.#$board.find('.square-' + this.#state.move[1]).addClass('highlight-move');
         }
-        if (this.state.checkedSquare) {
-            this.$board.find('.square-' + this.state.checkedSquare).addClass('highlight-check');
+        if (this.#state.checkedSquare) {
+            this.#$board.find('.square-' + this.#state.checkedSquare).addClass('highlight-check');
         }
     }
 
-    onDragStart(source, piece, position, orientation) {
-        if (this.state.isGameOver) return false;
-        if ((this.state.turn === 'White' && piece.search(/^b/) !== -1) ||
-            (this.state.turn === 'Black' && piece.search(/^w/) !== -1)) {
+    #onDragStart(source, piece, position, orientation) {
+        if (this.#state.isGameOver) return false;
+        if ((this.#state.turn === 'White' && piece.search(/^b/) !== -1) ||
+            (this.#state.turn === 'Black' && piece.search(/^w/) !== -1)) {
             return false;
         }
     }
     
-    onDrop(source, target) {
+    #onDrop(source, target) {
         var game = this;
         this.sendMove(source + target).then(function(valid) {
             if (!valid) {
-                game.board.position(game.state.fen);
+                game.#board.position(game.#state.fen);
                 sounds.illegal.play();
             }
         });
