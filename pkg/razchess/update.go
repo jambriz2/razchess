@@ -27,7 +27,7 @@ func newUpdate(game *chess.Game) *Update {
 	u := &Update{
 		Turn: game.Position().Turn().Name(),
 		FEN:  game.FEN(),
-		PGN:  game.String()[1:],
+		PGN:  strings.TrimSpace(game.String()),
 	}
 	u.Status, u.IsGameOver = getStatus(game)
 	if lastMove := getLastMove(game); lastMove != nil {

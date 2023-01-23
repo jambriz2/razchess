@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -49,11 +50,11 @@ func (mgr *SessionMgr) CreateSession(game string) (string, error) {
 		if _, loaded := mgr.sessions.LoadOrStore(roomID, sess); !loaded {
 			slc.resetRoomID(roomID)
 			if len(game) > 0 {
-				log.Printf("[new custom session: %s] %s", roomID, game)
+				log.Printf("[new custom session: %s] %s", roomID, strings.NewReplacer("\n", " ", "\r", "").Replace(game))
 			} else {
 				log.Printf("[new session: %s]", roomID)
 			}
-			go slc.update(sess.gameToString())
+			go slc.update(gameToString(sess.game))
 			return roomID, nil
 		}
 	}

@@ -10,11 +10,10 @@ import (
 )
 
 type Session struct {
-	slc      *sessionLifecycle
-	mtx      sync.Mutex
-	game     *chess.Game
-	isCustom bool
-	clients  []*jsonrpc.JsonRPC
+	slc     *sessionLifecycle
+	mtx     sync.Mutex
+	game    *chess.Game
+	clients []*jsonrpc.JsonRPC
 }
 
 func newSession(slc *sessionLifecycle, game string) (*Session, error) {
@@ -26,13 +25,12 @@ func newSession(slc *sessionLifecycle, game string) (*Session, error) {
 }
 
 func (sess *Session) init(slc *sessionLifecycle, game string) error {
-	opts, isCustom, err := parseGame(game)
+	opts, err := parseGame(game)
 	if err != nil {
 		return err
 	}
 	sess.slc = slc
 	sess.game = chess.NewGame(opts...)
-	sess.isCustom = isCustom
 	return nil
 }
 
@@ -57,7 +55,7 @@ func (sess *Session) Move(move string, validMove *bool) error {
 		sess.updateClients()
 	}
 
-	go sess.slc.update(sess.gameToString())
+	go sess.slc.update(gameToString(sess.game))
 
 	return nil
 }
@@ -129,23 +127,15 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 	}
 }
 
-func (sess *Session) getUpdate() *Update {
-	return newUpdate(sess.game)
-}
-
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
 	client.Notify("Session.Update", update)
 }
 
 func (sess *Session) updateClients() {
-	update := sess.getUpdate()
+	update := newUpdate(sess.game)
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
 	}
-}
-
-func (sess *Session) gameToString() string {
-	return gameToString(sess.game, sess.isCustom)
 }
 
 func (sess *Session) serve(ws *websocket.Conn) {
@@ -154,7 +144,7 @@ func (sess *Session) serve(ws *websocket.Conn) {
 
 	sess.addClient(client)
 
-	sess.updateClient(client, sess.getUpdate())
+	sess.updateClient(client, newUpdate(sess.game))
 	client.Serve()
 
 	sess.removeClient(client)

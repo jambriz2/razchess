@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -53,8 +54,13 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		srv.index.Execute(w, roomID)
 	})
 
-	srv.HandleFunc("/custom/", func(w http.ResponseWriter, r *http.Request) {
-		game := r.URL.Path[8:]
+	srv.HandleFunc("/custom", func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+		game, err := gameFromForm(r.Form)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		srv.serveSession(w, r, game, true)
 	})
 
@@ -105,4 +111,13 @@ func (srv *Server) serveSession(w http.ResponseWriter, r *http.Request, game str
 
 func (srv *Server) redirectToNewSession(w http.ResponseWriter, r *http.Request) {
 	srv.serveSession(w, r, "", true)
+}
+
+func gameFromForm(form url.Values) (string, error) {
+	for _, gameType := range []string{"fen", "pgn"} {
+		if form.Has(gameType) {
+			return gameType + ":" + form.Get(gameType), nil
+		}
+	}
+	return "", fmt.Errorf("invalid form")
 }

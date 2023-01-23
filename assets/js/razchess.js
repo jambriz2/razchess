@@ -204,11 +204,27 @@ class Menu {
 }
 
 function newCustomGame(type) {
+    var xhr = new XMLHttpRequest();
+    var data = {}
     params = prompt('Please insert the text representation of the game (' + type + '):');
     if (!params) {
         return;
     }
-    window.location.href='/custom/' + type + ':' + params;
+    data[type] = params;
+    $.ajax({
+        url: '/custom',
+        type: 'post',
+        data: data,
+        xhr: function() {
+            return xhr;
+        }
+    })
+    .done(function(data) {
+        window.location.href = xhr.responseURL;
+    })
+    .fail(function(data) {
+        alert(data.responseText);
+    });
 }
 
 var roomID = $('#roomID').val();

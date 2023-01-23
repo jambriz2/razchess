@@ -107,30 +107,51 @@ func (s setup) String() string {
 	return fmt.Sprintf("%s/pppppppp/8/8/8/8/PPPPPPPP/%s w KQkq - 0 1", strings.ToLower(rank), strings.ToUpper(rank))
 }
 
-func parseGame(game string) (opts []func(*chess.Game), isCustom bool, err error) {
-	var opt func(*chess.Game)
-	switch {
-	case len(game) == 0:
-		// do nothing
-	case strings.HasPrefix(game, "fen:"):
-		opt, err = chess.FEN(game[4:])
-		isCustom = true
-	case strings.HasPrefix(game, "pgn:"):
-		opt, err = chess.PGN(strings.NewReader(game[4:]))
-	default:
-		opt, err = chess.FEN(game)
-		isCustom = true
-	}
-	if opt != nil {
-		opts = []func(*chess.Game){opt}
-	}
-	return
+func getFENTagPairsOpt(fen string) func(*chess.Game) {
+	return chess.TagPairs([]*chess.TagPair{
+		{
+			Key:   "SetUp",
+			Value: "1",
+		},
+		{
+			Key:   "FEN",
+			Value: fen,
+		},
+	})
 }
 
-func gameToString(game *chess.Game, customGame bool) string {
-	if customGame {
-		return "fen:" + game.FEN()
-	} else {
-		return "pgn:" + game.String()[1:]
+func parseGame(game string) ([]func(*chess.Game), error) {
+	switch {
+	case len(game) == 0:
+		return nil, nil
+
+	case strings.HasPrefix(game, "pgn:"):
+		opt, err := chess.PGN(strings.NewReader(game[4:]))
+		if err != nil {
+			return nil, err
+		}
+		return []func(*chess.Game){opt}, nil
+
+	case strings.HasPrefix(game, "fen:"):
+		fen := game[4:]
+		opt, err := chess.FEN(fen)
+		if err != nil {
+			return nil, err
+		}
+		return []func(*chess.Game){opt, getFENTagPairsOpt(fen)}, nil
+
+	default:
+		opt, err := chess.FEN(game)
+		if err != nil {
+			return nil, err
+		}
+		return []func(*chess.Game){opt, getFENTagPairsOpt(game)}, nil
 	}
+}
+
+func gameToString(game *chess.Game) string {
+	if len(game.Moves()) > 0 {
+		return "pgn:" + strings.TrimSpace(game.String())
+	}
+	return "fen:" + game.FEN()
 }
