@@ -1,205 +1,326 @@
 <html>
-    <head>
-        <title>RazChess</title>
-        <base href="/" />
-        <link rel="icon" href="/img/favicon64.png" type="image/png">
-        <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
-        <link rel="stylesheet" href="/css/tailwind-1.3.5.min.css">
-        <link rel="stylesheet" href="/css/razchess.css">
-    </head>
-    <body id="bg">
-        <input type="hidden" id="roomID" value="{{ . }}" />
-        <div id="menuBar">
-            <div x-data="{ open: false, color: false }" @keydown.escape="open = false" @click.away="open = false" class="inline-block align-top">
-                <a href="javascript:;" @click="open = !open">
-                    <svg fill="currentColor" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"></path>
+
+<head>
+    <title>RazChess</title>
+    <base href="/" />
+    <link rel="icon" href="/img/favicon64.png" type="image/png">
+    <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="/css/tailwind-1.3.5.min.css">
+    <link rel="stylesheet" href="/css/razchess.css">
+</head>
+
+<body id="bg">
+    <input type="hidden" id="roomID" value="{{ . }}" />
+    <div id="menuBar">
+        <div x-data="{ open: false, color: false }" @keydown.escape="open = false" @click.away="open = false"
+            class="inline-block align-top">
+            <a href="javascript:;" @click="open = !open">
+                <svg fill="currentColor" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path
+                        d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z">
+                    </path>
+                </svg>
+            </a>
+            <div id="menu" x-show="open" x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="options absolute bg-white text-gray-600 origin-top-left left-1 mt-2 w-56 rounded-md shadow-lg overflow-hidden">
+                <a href="/" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
+                    <span class="mr-auto">New game</span>
+                </a>
+                <a href="/fischer-random" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
+                    <span class="mr-auto">New Fischer random game</span>
+                </a>
+                <a href="/puzzle" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
+                    <span class="mr-auto">Play a puzzle</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(0.95 0 0 0.95 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-13.5, -10.5)"
+                                d="M 11.5 0 C 10.119 0 9 1.119 9 2.5 L 9 4 L 5 4 C 3.895 4 3 4.895 3 6 L 3 9 C 3 9.552 3.448 10 4 10 L 4.3574219 10 C 5.6654219 10 6.8553281 10.941188 6.9863281 12.242188 C 7.1363281 13.739187 5.966 15 4.5 15 L 4 15 C 3.448 15 3 15.448 3 16 L 3 19 C 3 20.105 3.895 21 5 21 L 8 21 C 8.552 21 9 20.552 9 20 L 9 19.642578 C 9 18.334578 9.9411875 17.144672 11.242188 17.013672 C 12.739187 16.863672 14 18.034 14 19.5 L 14 20 C 14 20.552 14.448 21 15 21 L 18 21 C 19.105 21 20 20.105 20 19 L 20 15 L 21.5 15 C 22.881 15 24 13.881 24 12.5 C 24 11.119 22.881 10 21.5 10 L 20 10 L 20 6 C 20 4.895 19.105 4 18 4 L 14 4 L 14 2.5 C 14 1.119 12.881 0 11.5 0 z"
+                                stroke-linecap="round" />
+                        </g>
                     </svg>
                 </a>
-                <div id="menu"
-                     x-show="open"
-                     x-transition:enter="transition ease-out duration-100"
-                     x-transition:enter-start="transform opacity-0 scale-95"
-                     x-transition:enter-end="transform opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-75"
-                     x-transition:leave-start="transform opacity-100 scale-100"
-                     x-transition:leave-end="transform opacity-0 scale-95"
-                     class="options absolute bg-white text-gray-600 origin-top-left left-1 mt-2 w-56 rounded-md shadow-lg overflow-hidden">
-                    <a href="/" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                        <span class="mr-auto">New game</span>
-                    </a>
-                    <a href="/fischer-random" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                        <span class="mr-auto">New Fischer random game</span>
-                    </a>
-                    <a href="/puzzle" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                        <span class="mr-auto">Play a puzzle</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(0.95 0 0 0.95 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-13.5, -10.5)" d="M 11.5 0 C 10.119 0 9 1.119 9 2.5 L 9 4 L 5 4 C 3.895 4 3 4.895 3 6 L 3 9 C 3 9.552 3.448 10 4 10 L 4.3574219 10 C 5.6654219 10 6.8553281 10.941188 6.9863281 12.242188 C 7.1363281 13.739187 5.966 15 4.5 15 L 4 15 C 3.448 15 3 15.448 3 16 L 3 19 C 3 20.105 3.895 21 5 21 L 8 21 C 8.552 21 9 20.552 9 20 L 9 19.642578 C 9 18.334578 9.9411875 17.144672 11.242188 17.013672 C 12.739187 16.863672 14 18.034 14 19.5 L 14 20 C 14 20.552 14.448 21 15 21 L 18 21 C 19.105 21 20 20.105 20 19 L 20 15 L 21.5 15 C 22.881 15 24 13.881 24 12.5 C 24 11.119 22.881 10 21.5 10 L 20 10 L 20 6 C 20 4.895 19.105 4 18 4 L 14 4 L 14 2.5 C 14 1.119 12.881 0 11.5 0 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <hr />
-                    <a href="javascript:game.flipBoard();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Flip board</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(0.83 0 0 0.83 12 12)" >
-                          <g style="" >
-                          <g transform="matrix(1 0 0 1 -0.32 -3.55)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-11.68, -8.45)" d="M 9.143 6.749 L 13.547 6.222 L 14.212 10.669" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 0 6.75)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-12, -18.75)" d="M 0.75 14.248 L 0.75 21.747999999999998 C 0.75 22.57642712474619 1.4215728752538097 23.247999999999998 2.25 23.247999999999998 L 21.75 23.247999999999998 C 22.57842712474619 23.247999999999998 23.25 22.57642712474619 23.25 21.747999999999998 L 23.25 14.247999999999998" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 -9 -0.75)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-3, -11.25)" d="M 0.75 11.248 L 5.25 11.248" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 8.25 -0.75)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-20.25, -11.25)" d="M 17.25 11.248 L 23.25 11.248" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 -11.25 -4.5)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-0.75, -7.5)" d="M 0.75 6.748 L 0.75 8.248" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 11.25 -4.5)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-23.25, -7.5)" d="M 23.25 6.748 L 23.25 8.248" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 -6 -11.25)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-6, -0.75)" d="M 5.25 0.748 L 6.75 0.748" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 0 -11.25)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-12, -0.75)" d="M 11.25 0.748 L 12.75 0.748" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 6 -11.25)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-18, -0.75)" d="M 17.25 0.748 L 18.75 0.748" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 -10.5 -10.5)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-1.5, -1.5)" d="M 2.25 0.748 C 1.4215728752538097 0.748 0.75 1.4195728752538095 0.75 2.2479999999999998" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 10.5 -10.5)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-22.5, -1.5)" d="M 23.25 2.248 C 23.25 1.41957287525381 22.57842712474619 0.7480000000000002 21.75 0.7480000000000002" stroke-linecap="round" />
-                          </g>
-                          <g transform="matrix(1 0 0 1 0.75 0.29)" >
-                          <path style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;" transform=" translate(-12.75, -12.29)" d="M 15 18.364 C 12.303616815242421 17.409731684940997 10.500881887711977 14.860263889651275 10.5 12 C 10.533921631884333 9.698280090365035 11.666386994470244 7.551539055151311 13.546999999999997 6.224000000000003" stroke-linecap="round" />
-                          </g>
-                          </g>
-                          </g>
-                        </svg>
-                    </a>
-                    <a href="javascript:menu.copySessionLink();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Copy session link</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(0.44 0 0 0.44 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-26.5, -25.5)" d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <a href="javascript:menu.copyFEN();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Copy FEN</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(0.44 0 0 0.44 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-26.5, -25.5)" d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <a href="javascript:menu.copyPGN();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Copy PGN</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(0.44 0 0 0.44 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-26.5, -25.5)" d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <a href="/gif/{{ . }}" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Download as GIF</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(1 0 0 1 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-12, -12)" d="M 10 2 L 10 11 L 6 11 L 12 17 L 18 11 L 14 11 L 14 2 L 10 2 z M 2 20 L 2 22 L 22 22 L 22 20 L 2 20 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <hr />
-                    <a href="javascript:newCustomGame('fen');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Custom game from FEN</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(1.05 0 0 1.05 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-12.5, -11.5)" d="M 18.414062 2 C 18.158188 2 17.902031 2.0974687 17.707031 2.2929688 L 16 4 L 20 8 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.925594 2.0974687 18.669937 2 18.414062 2 z M 14.5 5.5 L 5 15 C 5 15 6.005 15.005 6.5 15.5 C 6.995 15.995 6.984375 16.984375 6.984375 16.984375 C 6.984375 16.984375 8.004 17.004 8.5 17.5 C 8.996 17.996 9 19 9 19 L 18.5 9.5 L 14.5 5.5 z M 3.6699219 17 L 3 21 L 7 20.330078 L 3.6699219 17 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <a href="javascript:newCustomGame('pgn');" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                        <span class="mr-auto">Custom game from PGN</span>
-                        <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'><rect width='24' height='24' stroke='none' fill='#000000' opacity='0'/>
-                          <g transform="matrix(1.05 0 0 1.05 12 12)" >
-                          <path style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" translate(-12.5, -11.5)" d="M 18.414062 2 C 18.158188 2 17.902031 2.0974687 17.707031 2.2929688 L 16 4 L 20 8 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.925594 2.0974687 18.669937 2 18.414062 2 z M 14.5 5.5 L 5 15 C 5 15 6.005 15.005 6.5 15.5 C 6.995 15.995 6.984375 16.984375 6.984375 16.984375 C 6.984375 16.984375 8.004 17.004 8.5 17.5 C 8.996 17.996 9 19 9 19 L 18.5 9.5 L 14.5 5.5 z M 3.6699219 17 L 3 21 L 7 20.330078 L 3.6699219 17 z" stroke-linecap="round" />
-                          </g>
-                        </svg>
-                    </a>
-                    <hr />
-                    <a href="javascript:game.resign();" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-red-400">
-                        <span class="mr-auto">Resign</span>
-                    </a>
-                </div>
+                <hr />
+                <a href="javascript:game.flipBoard();" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Flip board</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(0.83 0 0 0.83 12 12)">
+                            <g style="">
+                                <g transform="matrix(1 0 0 1 -0.32 -3.55)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-11.68, -8.45)"
+                                        d="M 9.143 6.749 L 13.547 6.222 L 14.212 10.669" stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 0 6.75)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-12, -18.75)"
+                                        d="M 0.75 14.248 L 0.75 21.747999999999998 C 0.75 22.57642712474619 1.4215728752538097 23.247999999999998 2.25 23.247999999999998 L 21.75 23.247999999999998 C 22.57842712474619 23.247999999999998 23.25 22.57642712474619 23.25 21.747999999999998 L 23.25 14.247999999999998"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 -9 -0.75)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-3, -11.25)" d="M 0.75 11.248 L 5.25 11.248"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 8.25 -0.75)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-20.25, -11.25)" d="M 17.25 11.248 L 23.25 11.248"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 -11.25 -4.5)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-0.75, -7.5)" d="M 0.75 6.748 L 0.75 8.248"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 11.25 -4.5)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-23.25, -7.5)" d="M 23.25 6.748 L 23.25 8.248"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 -6 -11.25)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-6, -0.75)" d="M 5.25 0.748 L 6.75 0.748"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 0 -11.25)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-12, -0.75)" d="M 11.25 0.748 L 12.75 0.748"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 6 -11.25)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-18, -0.75)" d="M 17.25 0.748 L 18.75 0.748"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 -10.5 -10.5)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-1.5, -1.5)"
+                                        d="M 2.25 0.748 C 1.4215728752538097 0.748 0.75 1.4195728752538095 0.75 2.2479999999999998"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 10.5 -10.5)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-22.5, -1.5)"
+                                        d="M 23.25 2.248 C 23.25 1.41957287525381 22.57842712474619 0.7480000000000002 21.75 0.7480000000000002"
+                                        stroke-linecap="round" />
+                                </g>
+                                <g transform="matrix(1 0 0 1 0.75 0.29)">
+                                    <path
+                                        style="stroke: rgb(0,0,0); stroke-width: 1.5; stroke-dasharray: none; stroke-linecap: round; stroke-dashoffset: 0; stroke-linejoin: round; stroke-miterlimit: 4; fill: none; fill-rule: nonzero; opacity: 1;"
+                                        transform=" translate(-12.75, -12.29)"
+                                        d="M 15 18.364 C 12.303616815242421 17.409731684940997 10.500881887711977 14.860263889651275 10.5 12 C 10.533921631884333 9.698280090365035 11.666386994470244 7.551539055151311 13.546999999999997 6.224000000000003"
+                                        stroke-linecap="round" />
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                </a>
+                <a href="javascript:menu.copySessionLink();" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Copy session link</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(0.44 0 0 0.44 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-26.5, -25.5)"
+                                d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <a href="javascript:menu.copyFEN();" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Copy FEN</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(0.44 0 0 0.44 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-26.5, -25.5)"
+                                d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <a href="javascript:menu.copyPGN();" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Copy PGN</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(0.44 0 0 0.44 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-26.5, -25.5)"
+                                d="M 20.5 3 C 18.203405 3 16.305701 4.7666235 16.050781 7 L 12.5 7 C 10.015 7 8 9.015 8 11.5 L 8 38.5 C 8 40.985 10.015 43 12.5 43 L 20 43 L 20 26 C 20 24.343 21.343 23 23 23 L 40 23 L 40 11.5 C 40 9.015 37.985 7 35.5 7 L 31.949219 7 C 31.694299 4.7666235 29.796595 3 27.5 3 L 20.5 3 z M 20.5 6 L 27.5 6 C 28.346499 6 29 6.6535009 29 7.5 C 29 8.3464991 28.346499 9 27.5 9 L 20.5 9 C 19.653501 9 19 8.3464991 19 7.5 C 19 6.6535009 19.653501 6 20.5 6 z M 23.5 25 C 22.67157287525381 25 22 25.67157287525381 22 26.5 C 22 27.32842712474619 22.67157287525381 28 23.5 28 C 24.32842712474619 28 25 27.32842712474619 25 26.5 C 25 25.67157287525381 24.32842712474619 25 23.5 25 z M 28.5 25 C 27.67157287525381 25 27 25.67157287525381 27 26.5 C 27 27.32842712474619 27.67157287525381 28 28.5 28 C 29.32842712474619 28 30 27.32842712474619 30 26.5 C 30 25.67157287525381 29.32842712474619 25 28.5 25 z M 33.5 25 C 32.67157287525381 25 32 25.67157287525381 32 26.5 C 32 27.32842712474619 32.67157287525381 28 33.5 28 C 34.32842712474619 28 35 27.32842712474619 35 26.5 C 35 25.67157287525381 34.32842712474619 25 33.5 25 z M 38.5 25 C 37.67157287525381 25 37 25.67157287525381 37 26.5 C 37 27.32842712474619 37.67157287525381 28 38.5 28 C 39.32842712474619 28 40 27.32842712474619 40 26.5 C 40 25.67157287525381 39.32842712474619 25 38.5 25 z M 43.5 25 C 42.67157287525381 25 42 25.67157287525381 42 26.5 C 42 27.32842712474619 42.67157287525381 28 43.5 28 C 44.32842712474619 28 45 27.32842712474619 45 26.5 C 45 25.67157287525381 44.32842712474619 25 43.5 25 z M 23.5 30 C 22.67157287525381 30 22 30.67157287525381 22 31.5 C 22 32.32842712474619 22.67157287525381 33 23.5 33 C 24.32842712474619 33 25 32.32842712474619 25 31.5 C 25 30.67157287525381 24.32842712474619 30 23.5 30 z M 43.5 30 C 42.67157287525381 30 42 30.67157287525381 42 31.5 C 42 32.32842712474619 42.67157287525381 33 43.5 33 C 44.32842712474619 33 45 32.32842712474619 45 31.5 C 45 30.67157287525381 44.32842712474619 30 43.5 30 z M 23.5 35 C 22.67157287525381 35 22 35.67157287525381 22 36.5 C 22 37.32842712474619 22.67157287525381 38 23.5 38 C 24.32842712474619 38 25 37.32842712474619 25 36.5 C 25 35.67157287525381 24.32842712474619 35 23.5 35 z M 43.5 35 C 42.67157287525381 35 42 35.67157287525381 42 36.5 C 42 37.32842712474619 42.67157287525381 38 43.5 38 C 44.32842712474619 38 45 37.32842712474619 45 36.5 C 45 35.67157287525381 44.32842712474619 35 43.5 35 z M 23.5 40 C 22.67157287525381 40 22 40.67157287525381 22 41.5 C 22 42.32842712474619 22.67157287525381 43 23.5 43 C 24.32842712474619 43 25 42.32842712474619 25 41.5 C 25 40.67157287525381 24.32842712474619 40 23.5 40 z M 43.5 40 C 42.67157287525381 40 42 40.67157287525381 42 41.5 C 42 42.32842712474619 42.67157287525381 43 43.5 43 C 44.32842712474619 43 45 42.32842712474619 45 41.5 C 45 40.67157287525381 44.32842712474619 40 43.5 40 z M 23.5 45 C 22.67157287525381 45 22 45.67157287525381 22 46.5 C 22 47.32842712474619 22.67157287525381 48 23.5 48 C 24.32842712474619 48 25 47.32842712474619 25 46.5 C 25 45.67157287525381 24.32842712474619 45 23.5 45 z M 28.5 45 C 27.67157287525381 45 27 45.67157287525381 27 46.5 C 27 47.32842712474619 27.67157287525381 48 28.5 48 C 29.32842712474619 48 30 47.32842712474619 30 46.5 C 30 45.67157287525381 29.32842712474619 45 28.5 45 z M 33.5 45 C 32.67157287525381 45 32 45.67157287525381 32 46.5 C 32 47.32842712474619 32.67157287525381 48 33.5 48 C 34.32842712474619 48 35 47.32842712474619 35 46.5 C 35 45.67157287525381 34.32842712474619 45 33.5 45 z M 38.5 45 C 37.67157287525381 45 37 45.67157287525381 37 46.5 C 37 47.32842712474619 37.67157287525381 48 38.5 48 C 39.32842712474619 48 40 47.32842712474619 40 46.5 C 40 45.67157287525381 39.32842712474619 45 38.5 45 z M 43.5 45 C 42.67157287525381 45 42 45.67157287525381 42 46.5 C 42 47.32842712474619 42.67157287525381 48 43.5 48 C 44.32842712474619 48 45 47.32842712474619 45 46.5 C 45 45.67157287525381 44.32842712474619 45 43.5 45 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <a href="/gif/{{ . }}" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Download as GIF</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(1 0 0 1 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-12, -12)"
+                                d="M 10 2 L 10 11 L 6 11 L 12 17 L 18 11 L 14 11 L 14 2 L 10 2 z M 2 20 L 2 22 L 22 22 L 22 20 L 2 20 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <hr />
+                <a href="javascript:newCustomGame('fen');" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Custom game from FEN</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(1.05 0 0 1.05 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-12.5, -11.5)"
+                                d="M 18.414062 2 C 18.158188 2 17.902031 2.0974687 17.707031 2.2929688 L 16 4 L 20 8 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.925594 2.0974687 18.669937 2 18.414062 2 z M 14.5 5.5 L 5 15 C 5 15 6.005 15.005 6.5 15.5 C 6.995 15.995 6.984375 16.984375 6.984375 16.984375 C 6.984375 16.984375 8.004 17.004 8.5 17.5 C 8.996 17.996 9 19 9 19 L 18.5 9.5 L 14.5 5.5 z M 3.6699219 17 L 3 21 L 7 20.330078 L 3.6699219 17 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <a href="javascript:newCustomGame('pgn');" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
+                    <span class="mr-auto">Custom game from PGN</span>
+                    <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
+                        xmlns:xlink='http://www.w3.org/1999/xlink'>
+                        <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
+                        <g transform="matrix(1.05 0 0 1.05 12 12)">
+                            <path
+                                style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;"
+                                transform=" translate(-12.5, -11.5)"
+                                d="M 18.414062 2 C 18.158188 2 17.902031 2.0974687 17.707031 2.2929688 L 16 4 L 20 8 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.925594 2.0974687 18.669937 2 18.414062 2 z M 14.5 5.5 L 5 15 C 5 15 6.005 15.005 6.5 15.5 C 6.995 15.995 6.984375 16.984375 6.984375 16.984375 C 6.984375 16.984375 8.004 17.004 8.5 17.5 C 8.996 17.996 9 19 9 19 L 18.5 9.5 L 14.5 5.5 z M 3.6699219 17 L 3 21 L 7 20.330078 L 3.6699219 17 z"
+                                stroke-linecap="round" />
+                        </g>
+                    </svg>
+                </a>
+                <hr />
+                <a href="javascript:game.resign();" @click="open = false"
+                    class="flex py-3 px-2 text-sm font-bold hover:bg-red-400">
+                    <span class="mr-auto">Resign</span>
+                </a>
             </div>
-            <div id="status"></div>
         </div>
-        <div id="board"></div>
-        <template id="loader">
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: radial-gradient(black 0, rgba(0,0,0,0) 50%); display: block;" width="200px" height="200px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+        <div id="status"></div>
+    </div>
+    <div id="board"></div>
+    <template id="loader">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+            style="margin: auto; background: radial-gradient(black 0, rgba(0,0,0,0) 50%); display: block;" width="200px"
+            height="200px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
             <g transform="rotate(0 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#fe718d">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.9166666666666666s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(30 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f47e60">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.8333333333333334s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(60 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f8b26a">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.75s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(90 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#abbd81">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.6666666666666666s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(120 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#849b87">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5833333333333334s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(150 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#6492ac">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(180 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#637cb5">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.4166666666666667s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(210 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#6a63b6">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.3333333333333333s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(240 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#fe718d">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.25s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(270 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f47e60">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.16666666666666666s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(300 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f8b26a">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.08333333333333333s" repeatCount="indefinite"></animate>
-              </rect>
-            </g><g transform="rotate(330 50 50)">
-              <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#abbd81">
-                <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animate>
-              </rect>
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#fe718d">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.9166666666666666s"
+                        repeatCount="indefinite"></animate>
+                </rect>
             </g>
-          </svg>
-        </template>
-        <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
-        <script type="application/javascript" src="/js/alpine-3.10.5.min.js"></script>
-        <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
-        <script type="application/javascript" src="/js/simple-jsonrpc-js.min.js"></script>
-        <script type="application/javascript" src="/js/razchess.js"></script>
-    </body>
+            <g transform="rotate(30 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f47e60">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.8333333333333334s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(60 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f8b26a">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.75s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(90 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#abbd81">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.6666666666666666s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(120 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#849b87">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5833333333333334s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(150 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#6492ac">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.5s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(180 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#637cb5">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.4166666666666667s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(210 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#6a63b6">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.3333333333333333s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(240 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#fe718d">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.25s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(270 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f47e60">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.16666666666666666s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(300 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#f8b26a">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="-0.08333333333333333s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+            <g transform="rotate(330 50 50)">
+                <rect x="47" y="24" rx="3" ry="6" width="6" height="12" fill="#abbd81">
+                    <animate attributeName="opacity" values="1;0" keyTimes="0;1" dur="1s" begin="0s"
+                        repeatCount="indefinite"></animate>
+                </rect>
+            </g>
+        </svg>
+    </template>
+    <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
+    <script type="application/javascript" src="/js/alpine-3.10.5.min.js"></script>
+    <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
+    <script type="application/javascript" src="/js/simple-jsonrpc-js.min.js"></script>
+    <script type="application/javascript" src="/js/razchess.js"></script>
+</body>
+
 </html>
