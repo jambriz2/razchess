@@ -1,21 +1,23 @@
 # RazChess
 
-## Features
-* Completely hassle free, no registration required
-* Super easy to create your own session
-  * Visit the website and get redirected to your own session
-  * Create your own custom room name {razchess-host}/room/{custom-room-name}
-* Play Fischer random (chess960) games
-* Play chess puzzles!
+## Game modes
+* Normal chess
+* Fischer random (chess960)
+* Chess puzzles!
   * 220x built-in mate-in-2-steps puzzles
   * External puzzles can be loaded
-* Create custom games from FEN or PGN strings
+* Custom game editor to create your own games
+
+## Other features
 * Share the room/session link with as many people as you want, they can all watch or participate
+* Auto reconnect
 * Download your game as a GIF
 * Encyclopaedia of Chess Openings included
+* Copy the FEN or PGN of the current game to use it elsewhere
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 
 ## Limitations
+* No bot
 * No timer
 * No option to ask for a draw
 * No built-in chat
