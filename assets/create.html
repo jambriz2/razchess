@@ -16,32 +16,32 @@
             <div class="panel">
                 <span class="font-bold">Castling rights:</span>
                 <div class="flex items-center">
-                    <input id="white-king-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <input id="white-king-side-castle" type="checkbox" value="" class="w-4 h-4" onChange="updateFEN();">
                     <label for="white-king-side-castle" class="ml-2 text-sm font-medium">White king side castle</label>
                 </div>
                 <div class="flex items-center">
-                    <input id="white-queen-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <input id="white-queen-side-castle" type="checkbox" value="" class="w-4 h-4" onChange="updateFEN();">
                     <label for="white-queen-side-castle" class="ml-2 text-sm font-medium">White queen side castle</label>
                 </div>
                 <div class="flex items-center">
-                    <input id="black-king-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <input id="black-king-side-castle" type="checkbox" value="" class="w-4 h-4" onChange="updateFEN();">
                     <label for="black-king-side-castle" class="ml-2 text-sm font-medium">Black king side castle</label>
                 </div>
                 <div class="flex items-center mb-5">
-                    <input id="black-queen-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <input id="black-queen-side-castle" type="checkbox" value="" class="w-4 h-4" onChange="updateFEN();">
                     <label for="black-queen-side-castle" class="ml-2 text-sm font-medium">Black queen side castle</label>
                 </div>
                 <span class="font-bold">Active color:</span>
                 <div class="flex items-center mb-5">
                     <label for="white-active" class="mr-2 text-sm font-medium">White</label>
-                    <input checked id="white-active" type="radio" value="" name="active-color" class="mr-2 w-4 h-4">
-                    <input id="black-active" type="radio" value="" name="active-color" class="w-4 h-4">
+                    <input checked id="white-active" type="radio" value="w" name="active-color" class="mr-2 w-4 h-4" onChange="updateFEN();">
+                    <input id="black-active" type="radio" value="b" name="active-color" class="w-4 h-4" onChange="updateFEN();">
                     <label for="black-active" class="ml-2 text-sm font-medium">Black</label>
                 </div>
                 <span class="font-bold">En passant square:</span>
                 <div class="inline">
                     <label for="en-passant-square" class="sr-only">En passant square</label>
-                    <select id="en-passant-square" class="py-2.5 px-0 text-sm bg-transparent border-0 border-b-2">
+                    <select id="en-passant-square" class="py-2.5 px-0 text-sm bg-transparent border-0 border-b-2" onChange="updateFEN();">
                         <option value="-" selected>None</option>
                         <option value="a2">a2</option>
                         <option value="b2">b2</option>
@@ -62,15 +62,15 @@
                     </select>
                 </div>
                 <div class="flex items-center mt-5">
-                    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Default position</button>
-                    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow ml-3">Clear board</button>
+                    <button onClick="setBoardDefault();" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Default position</button>
+                    <button onClick="setBoardClear(); castlingRights.set('');" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow ml-3">Clear board</button>
                 </div>
             </div>
             <div class="panel">
                 <span class="font-bold">Forsyth-Edwards Notation (FEN):</span>
                 <form class="m-0 p-0" action="/create" method="post">
                     <div class="flex items-center border-b border-white mt-5">
-                        <input id="fen" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-2" />
+                        <input id="fen" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-0" value="{{or . "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}}" onChange="updateControls();" />
                     </div>
                     <div class="flex items-center mt-2">
                         <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Create game</button>
@@ -81,7 +81,7 @@
                 <span class="font-bold">Portable Game Notation (PGN):</span>
                 <form class="m-0 p-0" action="/create" method="post">
                     <div class="flex items-center border-b border-white mt-5">
-                        <textarea id="pgn" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-2">
+                        <textarea id="pgn" name="pgn" class="appearance-none bg-transparent border-none w-full py-1 px-0">
                         </textarea>
                     </div>
                     <div class="flex items-center mt-2">
@@ -93,16 +93,7 @@
     </div>
     <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
     <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
-    <script type="application/javascript">
-        var board = Chessboard('editorBoard', {
-            draggable: true,
-            dropOffBoard: 'trash',
-            sparePieces: true
-        });
-        $(window).resize(function () {
-            board.resize();
-        });
-    </script>
+    <script type="application/javascript" src="/js/create.js"></script>
 </body>
 
 </html>

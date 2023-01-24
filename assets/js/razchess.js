@@ -201,6 +201,15 @@ var menu = new class {
         $('#status').html(html);
         document.title = update.status + ' - RazChess'
     }
+
+    createCustomGame() {
+        if (this.fen) {
+            var game = this.fen.replaceAll(' ', '_');
+            window.location.href = '/create/' + game;
+        } else {
+            window.location.href = '/create';
+        }
+    }
 }
 
 var roomID = $('#roomID').val();
