@@ -177,7 +177,7 @@ class Game {
     }
 }
 
-class Menu {
+var menu = new class {
     copySessionLink() {
         var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
         navigator.clipboard.writeText(sessionUrl);
@@ -203,32 +203,7 @@ class Menu {
     }
 }
 
-function newCustomGame(type) {
-    var xhr = new XMLHttpRequest();
-    var data = {}
-    params = prompt('Please insert the text representation of the game (' + type + '):');
-    if (!params) {
-        return;
-    }
-    data[type] = params;
-    $.ajax({
-        url: '/custom',
-        type: 'post',
-        data: data,
-        xhr: function() {
-            return xhr;
-        }
-    })
-    .done(function(data) {
-        window.location.href = xhr.responseURL;
-    })
-    .fail(function(data) {
-        alert(data.responseText);
-    });
-}
-
 var roomID = $('#roomID').val();
-var menu = new Menu();
 var game = new Game(roomID, 'board');
 game.onUpdate = function(status, fen, pgn) {
     menu.update(status, fen, pgn);

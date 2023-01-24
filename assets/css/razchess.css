@@ -1,3 +1,4 @@
+/* common */
 body {
     width: 100%;
     height: 100%;
@@ -12,10 +13,28 @@ body {
     align-self: center;
     overscroll-behavior-y: contain;
 }
-h1 {
-    color: #f0d9b5;
-    display: inline;
+.board-b72b1 {
+    box-shadow: 0 0 10px 10px black;
 }
+.white-1e1d7.highlight-move, .white-1e1d7.highlight2-9c5d2, .white-1e1d7.highlight1-32417 {
+    box-shadow: none;
+    background-color: #F7C163;
+}
+.black-3c85d.highlight-move, .black-3c85d.highlight2-9c5d2, .black-3c85d.highlight1-32417 {
+    box-shadow: none;
+    background-color: #D79536;
+}
+.highlight-check {
+    background-color: red;
+}
+.white-1e1d7.highlight-square {
+    background-color: #F77663;
+}
+.black-3c85d.highlight-square {
+    background-color: #D74A36;
+}
+
+/* game */
 #menuBar {
     display: flex;
     position: absolute;
@@ -41,14 +60,14 @@ h1 {
     from { width: 0 }
     to { width: 100% }
 }
+h1 {
+    color: #f0d9b5;
+    display: inline;
+}
 #board {
     max-width: 80vh;
     max-height: 80vh;
     width: 100%;
-    height: 100%;
-}
-.chessboard-63f37 {
-    box-shadow: 0 0 10px 10px black;
 }
 .loading {
     width: 100%;
@@ -56,20 +75,35 @@ h1 {
     margin: auto;
     vertical-align: middle;
 }
-.white-1e1d7.highlight-move, .white-1e1d7.highlight2-9c5d2, .white-1e1d7.highlight1-32417 {
-    box-shadow: none;
-    background-color: #F7C163;
+
+/* creator */
+.panel {
+    background-color: #4f4f4f;
+    box-shadow: 0 0 10px 10px black;
+    width: 100%;
+    margin-left: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
 }
-.black-3c85d.highlight-move, .black-3c85d.highlight2-9c5d2, .black-3c85d.highlight1-32417 {
-    box-shadow: none;
-    background-color: #D79536;
+#editor {
+    max-width: 90vh;
+    max-height: 90vh;
+    width: 100%;  
 }
-.highlight-check {
-    background-color: red;
+.spare-pieces-7492f {
+    background-color: #4f4f4f;
+    box-shadow: 0 0 10px 10px black;
+    width: 100%;
 }
-.white-1e1d7.highlight-square {
-    background-color: #F77663;
+.spare-pieces-7492f img {
+    display: inline-block;
 }
-.black-3c85d.highlight-square {
-    background-color: #D74A36;
+.spare-pieces-top-4028b {
+    margin-bottom: 15px;
+}
+.spare-pieces-bottom-ae20f {
+    margin-top: 15px;
+}
+#en-passant-square {
+    background-color: #4f4f4f;
 }

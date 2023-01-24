@@ -1,0 +1,108 @@
+<html>
+
+<head>
+    <title>Custom game creator - RazChess</title>
+    <base href="/" />
+    <link rel="icon" href="/img/favicon64.png" type="image/png">
+    <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="/css/tailwind-1.3.5.min.css">
+    <link rel="stylesheet" href="/css/razchess.css">
+</head>
+
+<body>
+    <div id="editor" class="grid grid-cols-5">
+        <div id="editorBoard" class="col-span-3"></div>
+        <div id="editorControls" class="col-span-2">
+            <div class="panel">
+                <span class="font-bold">Castling rights:</span>
+                <div class="flex items-center">
+                    <input id="white-king-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <label for="white-king-side-castle" class="ml-2 text-sm font-medium">White king side castle</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="white-queen-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <label for="white-queen-side-castle" class="ml-2 text-sm font-medium">White queen side castle</label>
+                </div>
+                <div class="flex items-center">
+                    <input id="black-king-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <label for="black-king-side-castle" class="ml-2 text-sm font-medium">Black king side castle</label>
+                </div>
+                <div class="flex items-center mb-5">
+                    <input id="black-queen-side-castle" type="checkbox" value="" class="w-4 h-4">
+                    <label for="black-queen-side-castle" class="ml-2 text-sm font-medium">Black queen side castle</label>
+                </div>
+                <span class="font-bold">Active color:</span>
+                <div class="flex items-center mb-5">
+                    <label for="white-active" class="mr-2 text-sm font-medium">White</label>
+                    <input checked id="white-active" type="radio" value="" name="active-color" class="mr-2 w-4 h-4">
+                    <input id="black-active" type="radio" value="" name="active-color" class="w-4 h-4">
+                    <label for="black-active" class="ml-2 text-sm font-medium">Black</label>
+                </div>
+                <span class="font-bold">En passant square:</span>
+                <div class="inline">
+                    <label for="en-passant-square" class="sr-only">En passant square</label>
+                    <select id="en-passant-square" class="py-2.5 px-0 text-sm bg-transparent border-0 border-b-2">
+                        <option value="-" selected>None</option>
+                        <option value="a2">a2</option>
+                        <option value="b2">b2</option>
+                        <option value="c2">c2</option>
+                        <option value="d2">d2</option>
+                        <option value="e2">e2</option>
+                        <option value="f2">f2</option>
+                        <option value="g2">g2</option>
+                        <option value="h2">h2</option>
+                        <option value="a7">a7</option>
+                        <option value="b7">b7</option>
+                        <option value="c7">c7</option>
+                        <option value="d7">d7</option>
+                        <option value="e7">e7</option>
+                        <option value="f7">f7</option>
+                        <option value="g7">g7</option>
+                        <option value="h7">h7</option>
+                    </select>
+                </div>
+                <div class="flex items-center mt-5">
+                    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Default position</button>
+                    <button class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow ml-3">Clear board</button>
+                </div>
+            </div>
+            <div class="panel">
+                <span class="font-bold">Forsyth-Edwards Notation (FEN):</span>
+                <form class="m-0 p-0" action="/create" method="post">
+                    <div class="flex items-center border-b border-white mt-5">
+                        <input id="fen" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-2" />
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Create game</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel">
+                <span class="font-bold">Portable Game Notation (PGN):</span>
+                <form class="m-0 p-0" action="/create" method="post">
+                    <div class="flex items-center border-b border-white mt-5">
+                        <textarea id="pgn" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-2">
+                        </textarea>
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Create game</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
+    <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
+    <script type="application/javascript">
+        var board = Chessboard('editorBoard', {
+            draggable: true,
+            dropOffBoard: 'trash',
+            sparePieces: true
+        });
+        $(window).resize(function () {
+            board.resize();
+        });
+    </script>
+</body>
+
+</html>

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -17,8 +18,9 @@ func init() {
 
 type Server struct {
 	http.ServeMux
-	mgr   *SessionMgr
-	index *template.Template
+	mgr    *SessionMgr
+	index  *template.Template
+	create *template.Template
 }
 
 func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
@@ -26,9 +28,14 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 	if err != nil {
 		panic(err)
 	}
+	createRaw, err := fs.ReadFile(assets, "create.html")
+	if err != nil {
+		panic(err)
+	}
 	srv := &Server{
-		mgr:   mgr,
-		index: template.Must(template.New("").Parse(string(indexRaw))),
+		mgr:    mgr,
+		index:  template.Must(template.New("").Parse(string(indexRaw))),
+		create: template.Must(template.New("").Parse(string(createRaw))),
 	}
 
 	if len(puzzles) == 0 {
@@ -54,14 +61,23 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 		srv.index.Execute(w, roomID)
 	})
 
-	srv.HandleFunc("/custom", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		game, err := gameFromForm(r.Form)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+	srv.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			r.ParseForm()
+			game, err := gameFromForm(r.Form)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			srv.serveSession(w, r, game, true)
+		} else {
+			srv.create.Execute(w, nil)
 		}
-		srv.serveSession(w, r, game, true)
+	})
+
+	srv.HandleFunc("/create/", func(w http.ResponseWriter, r *http.Request) {
+		game := strings.ReplaceAll(r.URL.Path[8:], "_", " ")
+		srv.create.Execute(w, game)
 	})
 
 	srv.HandleFunc("/puzzle", func(w http.ResponseWriter, r *http.Request) {
