@@ -25,7 +25,7 @@ type Update struct {
 
 func newUpdate(game *chess.Game) *Update {
 	u := &Update{
-		Turn: game.Position().Turn().Name(),
+		Turn: game.Position().Turn().String(),
 		FEN:  game.FEN(),
 		PGN:  strings.TrimSpace(game.String()),
 	}

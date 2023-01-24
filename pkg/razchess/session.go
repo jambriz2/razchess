@@ -70,9 +70,9 @@ func (sess *Session) Resign(color string, unused *bool) error {
 	}
 
 	switch color {
-	case "White":
+	case "w":
 		sess.game.Resign(chess.White)
-	case "Black":
+	case "b":
 		sess.game.Resign(chess.Black)
 	default:
 		return nil

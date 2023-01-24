@@ -16,6 +16,7 @@ class Game {
     #state;
     #jrpc;
     onUpdate;
+    onPromotion;
 
     constructor(roomID, boardID) {
         this.#roomID = roomID;
@@ -75,8 +76,14 @@ class Game {
         setTimeout(() => { self.#connectToRPC(); }, 1000);
     }
 
-    sendMove(move) {
-        return this.#jrpc.call('Session.Move', [move]);
+    move(move) {
+        var self = this;
+        this.#jrpc.call('Session.Move', [move]).then(function(valid) {
+            if (!valid && self.#board) {
+                self.#board.position(self.#state.fen);
+                sounds.illegal.play();
+            }
+        });
     }
 
     resign() {
@@ -156,55 +163,64 @@ class Game {
 
     #onDragStart(source, piece, position, orientation) {
         if (this.#state.isGameOver) return false;
-        if ((this.#state.turn === 'White' && piece.search(/^b/) !== -1) ||
-            (this.#state.turn === 'Black' && piece.search(/^w/) !== -1)) {
+        if ((this.#state.turn === 'w' && piece.search(/^b/) !== -1) ||
+            (this.#state.turn === 'b' && piece.search(/^w/) !== -1)) {
             return false;
         }
     }
     
     #onDrop(source, target, piece) {
-        var game = this;
         var move = source + target;
         if ((piece === 'wP' && target.charAt(1) === '8') || (piece === 'bP' && target.charAt(1) === '1')) {
+            if (this.onPromotion) {
+                var self = this;
+                this.onPromotion(this.#state.turn).then(function(promoteTo) {
+                    self.move(move + promoteTo);
+                });
+                return 'snapback';
+            }
             move += 'q';
         }
-        this.sendMove(move).then(function(valid) {
-            if (!valid) {
-                game.#board.position(game.#state.fen);
-                sounds.illegal.play();
-            }
-        });
+        this.move(move);
     }
 }
 
-var menu = new class {
+class Menu {
+    #sessionURL;
+    #$status;
+    #fen;
+    #pgn;
+
+    constructor(roomID, statusDivID) {
+        this.#sessionURL = window.location.protocol + '//' + window.location.host + '/room/' + roomID;
+        this.#$status = $('#' + statusDivID);
+    }
+
     copySessionLink() {
-        var sessionUrl = window.location.protocol + '//' + window.location.host + '/room/' + $('#roomID').val();
-        navigator.clipboard.writeText(sessionUrl);
+        navigator.clipboard.writeText(this.#sessionURL);
     }
 
     copyFEN() {
-        navigator.clipboard.writeText(this.fen);
+        navigator.clipboard.writeText(this.#fen);
     }
 
     copyPGN() {
-        navigator.clipboard.writeText(this.pgn);
+        navigator.clipboard.writeText(this.#pgn);
     }
 
     update(update) {
-        this.fen = update.fen;
-        this.pgn = update.pgn;
+        this.#fen = update.fen;
+        this.#pgn = update.pgn;
         var html = '<span>' + update.status + '</span>';
         if (update.opening) {
             html = '<h1>' + update.opening + '</h1> - ' + html;
         }
-        $('#status').html(html);
-        document.title = update.status + ' - RazChess'
+        this.#$status.html(html);
     }
 
     createCustomGame() {
-        if (this.fen) {
-            var game = this.fen.replaceAll(' ', '_');
+        if (this.#fen) {
+            var game = this.#fen.replaceAll(' ', '_');
             window.location.href = '/create/' + game;
         } else {
             window.location.href = '/create';
@@ -212,8 +228,64 @@ var menu = new class {
     }
 }
 
+class PawnPromotion {
+    #$dialog;
+    #$dlgImages;
+    #piecesTheme;
+    #$parent;
+    #promotionResolve;
+    #promotionReject;
+
+    constructor(dialogID, parentID) {
+        this.#$dialog = $('#' + dialogID);
+        this.#$dlgImages = $('#' + dialogID + ' img');
+        this.#piecesTheme = '/img/chesspieces/wikipedia/';
+        this.#$parent = $('#' + parentID);
+    }
+
+    openPromotionDlg(color) {
+        if (this.#promotionReject) {
+            this.#promotionReject("new promotion dialog opened");
+            this.#promotionReject = null;
+        }
+        this.#$dlgImages.filter('[data-piece="q"]').attr('src', this.#piecesTheme + color + 'Q.png');
+        this.#$dlgImages.filter('[data-piece="r"]').attr('src', this.#piecesTheme + color + 'R.png');
+        this.#$dlgImages.filter('[data-piece="n"]').attr('src', this.#piecesTheme + color + 'N.png');
+        this.#$dlgImages.filter('[data-piece="b"]').attr('src', this.#piecesTheme + color + 'B.png');
+        this.#$dialog.dialog({
+            modal: true,
+            width: this.#$parent.width()/2,
+            resizable: false,
+            draggable: false,
+            closeOnEscape: true,
+        }).dialog('widget').position({
+            of: this.#$parent,
+            my: 'middle middle',
+            at: 'middle middle',
+        })
+        return new Promise((resolve, reject) => {
+            this.#promotionResolve = resolve;
+            this.#promotionReject = reject;
+        });
+    }
+
+    promoteTo(piece) {
+        if (this.#promotionResolve) {
+            this.#promotionResolve(piece);
+            this.#promotionResolve = null;
+        }
+        this.#$dialog.dialog('close');
+    }
+}
+
 var roomID = $('#roomID').val();
+var menu = new Menu(roomID, 'status');
+var promotion = new PawnPromotion('promotion-dialog', 'board');
 var game = new Game(roomID, 'board');
-game.onUpdate = function(status, fen, pgn) {
-    menu.update(status, fen, pgn);
+game.onUpdate = function(update) {
+    menu.update(update);
+    document.title = update.status + ' - RazChess'
+};
+game.onPromotion = function(color) {
+    return promotion.openPromotionDlg(color);
 };

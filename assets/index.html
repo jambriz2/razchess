@@ -4,8 +4,9 @@
     <title>RazChess</title>
     <base href="/" />
     <link rel="icon" href="/img/favicon64.png" type="image/png">
-    <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="/css/jquery-ui.min.css">
     <link rel="stylesheet" href="/css/tailwind-1.3.5.min.css">
+    <link rel="stylesheet" href="/css/chessboard-1.0.0.min.css">
     <link rel="stylesheet" href="/css/razchess.css">
 </head>
 
@@ -222,6 +223,12 @@
         <div id="status"></div>
     </div>
     <div id="board"></div>
+    <div id="promotion-dialog">
+        <a href="javascript:promotion.promoteTo('q');"><img data-piece="q" /></a>
+        <a href="javascript:promotion.promoteTo('r');"><img data-piece="r" /></a>
+        <a href="javascript:promotion.promoteTo('n');"><img data-piece="n" /></a>
+        <a href="javascript:promotion.promoteTo('b');"><img data-piece="b" /></a>
+    </div>
     <template id="loader">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
             style="margin: auto; background: radial-gradient(black 0, rgba(0,0,0,0) 50%); display: block;" width="200px"
@@ -301,6 +308,7 @@
         </svg>
     </template>
     <script type="application/javascript" src="/js/jquery-3.6.3.min.js"></script>
+    <script type="application/javascript" src="/js/jquery-ui.min.js"></script>
     <script type="application/javascript" src="/js/alpine-3.10.5.min.js"></script>
     <script type="application/javascript" src="/js/chessboard-1.0.0.min.js"></script>
     <script type="application/javascript" src="/js/simple-jsonrpc-js.min.js"></script>

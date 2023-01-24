@@ -16,7 +16,6 @@
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 
 ## Limitations
-* **Pawns can only be promoted to queen**
 * No timer
 * No option to ask for a draw
 * No built-in chat

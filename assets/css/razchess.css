@@ -69,6 +69,24 @@ h1 {
     max-height: 80vh;
     width: 100%;
 }
+#promotion-dialog {
+    display: none;
+    background-color: #4f4f4f;
+    box-shadow: 0 0 10px 10px black;
+    /*max-width: 40vh;
+    width: 100%;*/
+    white-space: nowrap;
+    overflow: visible;
+}
+#promotion-dialog img {
+    display: inline-block;
+    width: 25%;
+    height: auto;
+    border: none;
+}
+#promotion-dialog a:focus,img:focus {
+    outline: none;
+}
 .loading {
     width: 100%;
     height: 100%;
