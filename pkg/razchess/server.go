@@ -71,7 +71,7 @@ func NewServer(assets fs.FS, mgr *SessionMgr, puzzles []string) *Server {
 			}
 			srv.serveSession(w, r, game, true)
 		} else {
-			srv.create.Execute(w, nil)
+			srv.create.Execute(w, StartingFEN)
 		}
 	})
 

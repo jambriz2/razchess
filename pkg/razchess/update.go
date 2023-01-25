@@ -40,8 +40,10 @@ func newUpdate(game *chess.Game) *Update {
 			u.CheckedSquare = game.Position().Board().KingSquare(game.Position().Turn()).String()
 		}
 	}
-	if opening := book.Find(game.Moves()); opening != nil {
-		u.Opening = opening.Title()
+	if game.Positions()[0].String() == StartingFEN {
+		if opening := book.Find(game.Moves()); opening != nil {
+			u.Opening = opening.Title()
+		}
 	}
 	return u
 }

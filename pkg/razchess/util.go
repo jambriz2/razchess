@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	csLen   = byte(len(charset))
+	StartingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+	charset     = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	csLen       = byte(len(charset))
 )
 
 func GenerateID(length int) string {
