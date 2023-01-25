@@ -71,8 +71,8 @@ h1 {
 }
 #promotion-dialog {
     display: none;
-    background-color: #4f4f4f;
-    box-shadow: 0 0 10px 10px black;
+    background-color: grey;
+    box-shadow: 0 0 5px 5px black;
     white-space: nowrap;
     overflow: visible;
 }

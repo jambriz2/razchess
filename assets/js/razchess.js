@@ -123,8 +123,8 @@ class Game {
             onDragStart: function(source, piece, position, orientation) {
                 return self.#onDragStart(source, piece, position, orientation);
             },
-            onDrop: function(source, target, piece) {
-                return self.#onDrop(source, target, piece);
+            onDrop: function(source, target, piece, newPos, oldPos) {
+                return self.#onDrop(source, target, piece, newPos, oldPos);
             }
         }
         this.#board = Chessboard(this.#boardID, config);
@@ -161,6 +161,41 @@ class Game {
         }
     }
 
+    #isPawnPromotion(source, target, board) {
+        var piece = board[source];
+        if (piece != 'wP' && piece != 'bP') {
+            return false;
+        }
+        var color = piece.charAt(0);
+        var sourceRank = source.charAt(1);
+        var targetRank = target.charAt(1);
+        if (color === 'w' && (sourceRank != '7' || targetRank != '8')) {
+            return false;
+        }
+        if (color === 'b' && (sourceRank != '2' || targetRank != '1')) {
+            return false;
+        }
+        var sourceFile = source.charCodeAt(0);
+        var targetFile = target.charCodeAt(0);
+        if (targetFile === sourceFile && !board[target]) return true;
+        return (targetFile == sourceFile+1 || targetFile == sourceFile-1) && board[target];
+    }
+
+    #tryHandlePawnPromotionDlg(move) {
+        if (!this.onPromotion) return false;
+        var self = this;
+        this.onPromotion(this.#state.turn).then(
+            function(promoteTo) { // resolved
+                self.move(move + promoteTo);
+            },
+            function() { // rejected
+                if (self.#board) {
+                    self.#board.position(self.#state.fen);
+                }
+            });
+        return true;
+    }
+
     #onDragStart(source, piece, position, orientation) {
         if (this.#state.isGameOver) return false;
         if ((this.#state.turn === 'w' && piece.search(/^b/) !== -1) ||
@@ -169,16 +204,10 @@ class Game {
         }
     }
     
-    #onDrop(source, target, piece) {
+    #onDrop(source, target, piece, newPos, oldPos) {
         var move = source + target;
-        if ((piece === 'wP' && target.charAt(1) === '8') || (piece === 'bP' && target.charAt(1) === '1')) {
-            if (this.onPromotion) {
-                var self = this;
-                this.onPromotion(this.#state.turn).then(function(promoteTo) {
-                    self.move(move + promoteTo);
-                });
-                return 'snapback';
-            }
+        if (this.#isPawnPromotion(source, target, oldPos)) {
+            if (this.#tryHandlePawnPromotionDlg(move)) return;
             move += 'q';
         }
         this.move(move);
@@ -244,20 +273,21 @@ class PawnPromotion {
     }
 
     openPromotionDlg(color) {
-        if (this.#promotionReject) {
-            this.#promotionReject("new promotion dialog opened");
-            this.#promotionReject = null;
-        }
+        this.#reject("new dialog opened");
         this.#$dlgImages.filter('[data-piece="q"]').attr('src', this.#piecesTheme + color + 'Q.png');
         this.#$dlgImages.filter('[data-piece="r"]').attr('src', this.#piecesTheme + color + 'R.png');
         this.#$dlgImages.filter('[data-piece="n"]').attr('src', this.#piecesTheme + color + 'N.png');
         this.#$dlgImages.filter('[data-piece="b"]').attr('src', this.#piecesTheme + color + 'B.png');
+        var self = this;
         this.#$dialog.dialog({
             modal: true,
             width: this.#$parent.width()/2,
             resizable: false,
             draggable: false,
             closeOnEscape: true,
+            close: function() {
+                self.#reject("dialog closed");
+            },
         }).dialog('widget').position({
             of: this.#$parent,
             my: 'middle middle',
@@ -275,6 +305,13 @@ class PawnPromotion {
             this.#promotionResolve = null;
         }
         this.#$dialog.dialog('close');
+    }
+
+    #reject(reason) {
+        if (this.#promotionReject) {
+            this.#promotionReject(reason);
+            this.#promotionReject = null;
+        }
     }
 }
 
