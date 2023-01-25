@@ -73,8 +73,6 @@ h1 {
     display: none;
     background-color: #4f4f4f;
     box-shadow: 0 0 10px 10px black;
-    /*max-width: 40vh;
-    width: 100%;*/
     white-space: nowrap;
     overflow: visible;
 }
