@@ -12,7 +12,7 @@
 
 <body id="bg">
     <input type="hidden" id="roomID" value="{{ . }}" />
-    <div id="menuBar">
+    <div id="menuBar" class="flex items-center">
         <div x-data="{ open: false, color: false }" @keydown.escape="open = false" @click.away="open = false"
             class="inline-block align-top">
             <a href="javascript:;" @click="open = !open">
@@ -22,22 +22,21 @@
                     </path>
                 </svg>
             </a>
-            <div id="menu" x-show="open" x-transition:enter="transition ease-out duration-100"
+            <div id="menu" x-show="open"
+                x-transition:enter="transition ease-out duration-100"
                 x-transition:enter-start="transform opacity-0 scale-95"
                 x-transition:enter-end="transform opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="transform opacity-100 scale-100"
-                x-transition:leave-end="transform opacity-0 scale-95"
-                class="options absolute bg-white text-gray-600 origin-top-left left-1 mt-2 w-56 rounded-md shadow-lg overflow-hidden">
-                <a href="/" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                    <span class="mr-auto">New game</span>
+                x-transition:leave-end="transform opacity-0 scale-95">
+                <a href="/" @click="open = false">
+                    <span>New game</span>
                 </a>
-                <a href="/fischer-random" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                    <span class="mr-auto">New Fischer random game</span>
+                <a href="/fischer-random" @click="open = false">
+                    <span>New Fischer random game</span>
                 </a>
-                <a href="/puzzle" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100 ">
-                    <span class="mr-auto">Play a puzzle</span>
+                <a href="/puzzle" @click="open = false">
+                    <span>Play a puzzle</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -50,9 +49,8 @@
                         </g>
                     </svg>
                 </a>
-                <a href="/create" onClick="menu.createCustomGame(); return false;" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Create custom game</span>
+                <a href="/create" onClick="menu.createCustomGame(); return false;" @click="open = false">
+                    <span>Create custom game</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -66,9 +64,8 @@
                     </svg>
                 </a>
                 <hr />
-                <a href="javascript:game.flipBoard();" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Flip board</span>
+                <a href="javascript:game.flipBoard();" @click="open = false">
+                    <span>Flip board</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -154,9 +151,8 @@
                         </g>
                     </svg>
                 </a>
-                <a href="javascript:menu.copySessionLink();" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Copy session link</span>
+                <a href="javascript:menu.copySessionLink();" @click="open = false">
+                    <span>Copy session link</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -169,9 +165,8 @@
                         </g>
                     </svg>
                 </a>
-                <a href="javascript:menu.copyFEN();" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Copy FEN</span>
+                <a href="javascript:menu.copyFEN();" @click="open = false">
+                    <span>Copy FEN</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -184,9 +179,8 @@
                         </g>
                     </svg>
                 </a>
-                <a href="javascript:menu.copyPGN();" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Copy PGN</span>
+                <a href="javascript:menu.copyPGN();" @click="open = false">
+                    <span>Copy PGN</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -199,8 +193,8 @@
                         </g>
                     </svg>
                 </a>
-                <a href="/gif/{{ . }}" @click="open = false" class="flex py-3 px-2 text-sm font-bold hover:bg-gray-100">
-                    <span class="mr-auto">Download as GIF</span>
+                <a href="/gif/{{ . }}" @click="open = false">
+                    <span>Download as GIF</span>
                     <svg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'
                         xmlns:xlink='http://www.w3.org/1999/xlink'>
                         <rect width='24' height='24' stroke='none' fill='#000000' opacity='0' />
@@ -214,13 +208,12 @@
                     </svg>
                 </a>
                 <hr />
-                <a href="javascript:game.resign();" @click="open = false"
-                    class="flex py-3 px-2 text-sm font-bold hover:bg-red-400">
-                    <span class="mr-auto">Resign</span>
+                <a href="javascript:game.resign();" @click="open = false" class="menu-resign">
+                    <span>Resign</span>
                 </a>
             </div>
         </div>
-        <div id="status"></div>
+        <div id="status" class="text-xl"></div>
     </div>
     <div id="board"></div>
     <div id="promotion-dialog">

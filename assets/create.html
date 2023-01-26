@@ -10,9 +10,9 @@
 </head>
 
 <body>
-    <div id="editor" class="grid grid-cols-5">
-        <div id="editorBoard" class="col-span-3"></div>
-        <div id="editorControls" class="col-span-2">
+    <div id="editor" class="m-2 grid gap-4 grid-cols-1 lg:grid-cols-5 lg:m-0">
+        <div id="editorBoard" class="lg:col-span-3"></div>
+        <div id="editorControls" class="lg:col-span-2">
             <div class="panel">
                 <span class="font-bold">Castling rights:</span>
                 <div class="flex items-center">
@@ -70,7 +70,7 @@
                 <span class="font-bold">Forsyth-Edwards Notation (FEN):</span>
                 <form class="m-0 p-0" action="/create" method="post">
                     <div class="flex items-center border-b border-white mt-5">
-                        <input id="fen" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-0" value="{{ . }}" onChange="updateControls();" />
+                        <input id="fen" name="fen" class="appearance-none bg-transparent border-none w-full py-1 px-0 text-sm" value="{{ . }}" onChange="updateControls();" />
                     </div>
                     <div class="flex items-center mt-2">
                         <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Create game</button>
@@ -81,7 +81,7 @@
                 <span class="font-bold">Portable Game Notation (PGN):</span>
                 <form class="m-0 p-0" action="/create" method="post">
                     <div class="flex items-center border-b border-white mt-5">
-                        <textarea id="pgn" name="pgn" class="appearance-none bg-transparent border-none w-full py-1 px-0"></textarea>
+                        <textarea id="pgn" name="pgn" class="appearance-none bg-transparent border-none w-full py-1 px-0 text-sm"></textarea>
                     </div>
                     <div class="flex items-center mt-2">
                         <button type="submit" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-1 px-2 border border-gray-400 rounded shadow">Create game</button>
