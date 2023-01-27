@@ -14,22 +14,22 @@
     <input type="hidden" id="roomID" value="{{ . }}" />
     <div id="menuBar" class="flex items-center">
         <div x-data="{ open: false, color: false }" @keydown.escape="open = false" @click.away="open = false"
-            class="inline-block align-top">
+            id="menuBtn" class="inline-block align-top">
             <a href="javascript:;" @click="open = !open">
-                <svg fill="currentColor" class="w-8 h-8 lg:w-5 lg:h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <svg fill="currentColor" class="w-8 h-8 lg:w-5 lg:h-5" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20">
                     <path
                         d="M10 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4z">
                     </path>
                 </svg>
             </a>
-            <div id="menu" x-show="open"
+            <div id="menu" class="text-2xl lg:text-base" x-show="open"
                 x-transition:enter="transition ease-out duration-100"
                 x-transition:enter-start="transform opacity-0 scale-95"
                 x-transition:enter-end="transform opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="transform opacity-100 scale-100"
-                x-transition:leave-end="transform opacity-0 scale-95"
-                class="text-2xl lg:text-base">
+                x-transition:leave-end="transform opacity-0 scale-95">
                 <a href="/" @click="open = false">
                     <span>New game</span>
                 </a>

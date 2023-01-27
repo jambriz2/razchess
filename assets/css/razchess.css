@@ -81,6 +81,7 @@ body {
     width: 100%;
     z-index: 99999;
     white-space: nowrap;
+    pointer-events: none;
 }
 #menu {
     position: absolute;
@@ -111,6 +112,12 @@ body {
     color: white !important;
     background-color: #e11d48 !important;
 }
+#menuBtn {
+    pointer-events: auto;
+}
+#status {
+    text-shadow: 0 0 2px black;
+}
 #status span {
     display: inline-flex;
     overflow: hidden;
@@ -131,6 +138,7 @@ h1 {
     max-width: 80vh;
     max-height: 80vh;
     width: 100%;
+    pointer-events:auto;
 }
 #promotion-dialog {
     display: none;
