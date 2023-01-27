@@ -7,6 +7,20 @@ var sounds = {
     gameOver: new Audio('/sounds/game-over.ogg')
 };
 
+function stopRightClick(e) {
+    if (e.button != 0) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        return false;
+    }
+}
+
+$("body")
+    .on('contextmenu', '.piece-417db', stopRightClick)
+    .on('mouseup', '.piece-417db', stopRightClick)
+    .on('mousedown', '.piece-417db', stopRightClick);
+
 class Game {
     #roomID;
     #boardID;
@@ -133,6 +147,7 @@ class Game {
             $(this).toggleClass('highlight-square');
             e.preventDefault();
         });
+        this.#$board.find(".square-55d63").on('mousedown', '.piece-417db', stopRightClick);
     }
 
     #resize() {
