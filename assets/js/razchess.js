@@ -124,7 +124,7 @@ class Game {
             sounds.capture.play();
         } else if (update.checkedSquare) {
             sounds.check.play();
-        } else if (update.move) {
+        } else if (update.move[0]) {
             sounds.move.play();
         }
     }
@@ -166,7 +166,7 @@ class Game {
     
     #colorSpecialSquares() {
         this.#$board.find('.square-55d63').removeClass('highlight-move').removeClass('highlight-check');
-        if (this.#state.move) {
+        if (this.#state.move[0]) {
             this.#$board.find('.square-' + this.#state.move[0]).addClass('highlight-move');
             this.#$board.find('.square-' + this.#state.move[1]).addClass('highlight-move');
         }
