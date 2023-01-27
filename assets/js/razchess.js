@@ -205,6 +205,7 @@ class Game {
     }
     
     #onDrop(source, target, piece, newPos, oldPos) {
+        if (source === target) return;
         var move = source + target;
         if (this.#isPawnPromotion(source, target, oldPos)) {
             if (this.#tryHandlePawnPromotionDlg(move)) return;
