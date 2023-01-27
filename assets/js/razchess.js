@@ -59,11 +59,10 @@ class Game {
             jrpc.messageHandler(event.data);
         };
         socket.onerror = function(error) {
-            console.error("Error: " + error.message);
+            socket.close();
             self.#handleDisconnect(error);
         };
         socket.onclose = function(event) {
-            console.info('close code : ' + event.code + ' reason: ' + event.reason + ' clean: ' + event.wasClean);
             self.#handleDisconnect(event);
         };
         this.#jrpc = jrpc;
