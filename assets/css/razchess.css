@@ -96,6 +96,7 @@ body {
     color: #4b4b4b;
     padding: 0.625rem;
     font-weight: bold;
+    align-items: center;
 }
 #menu a:hover {
     background-color: #f0d9b5;
