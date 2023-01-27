@@ -27,11 +27,47 @@ body {
 .highlight-check {
     background-color: red;
 }
+.white-1e1d7.highlight-square.highlight-check {
+    background: repeating-linear-gradient(
+        45deg,
+        red,
+        red 25%,
+        #F77663 25%,
+        #F77663 50%
+    );
+}
+.black-3c85d.highlight-square.highlight-check {
+    background: repeating-linear-gradient(
+        45deg,
+        red,
+        red 25%,
+        #D74A36 25%,
+        #D74A36 50%
+    );
+}
 .white-1e1d7.highlight-square {
     background-color: #F77663;
 }
 .black-3c85d.highlight-square {
     background-color: #D74A36;
+}
+.white-1e1d7.highlight-square.highlight-move, .white-1e1d7.highlight-square.highlight2-9c5d2, .white-1e1d7.highlight-square.highlight1-32417 {
+    background: repeating-linear-gradient(
+        45deg,
+        #F7C163,
+        #F7C163 25%,
+        #F77663 25%,
+        #F77663 50%
+    );
+}
+.black-3c85d.highlight-square.highlight-move, .black-3c85d.highlight-square.highlight2-9c5d2, .black-3c85d.highlight-square.highlight1-32417 {
+    background: repeating-linear-gradient(
+        45deg,
+        #D79536,
+        #D79536 25%,
+        #D74A36 25%,
+        #D74A36 50%
+    );
 }
 
 /* game */
