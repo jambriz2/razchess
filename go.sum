@@ -13,8 +13,8 @@ github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGw
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
 github.com/onsi/gomega v1.18.1 h1:M1GfJqGRrBrrGGsbxzV5dqM2U2ApXefZCQpkukxYRLE=
-github.com/razzie/chess v1.9.0-1491673 h1:oLl5GeeDJ5Anl4Re4RtTADTuWz5T2Zg3z2t46iOGgbE=
-github.com/razzie/chess v1.9.0-1491673/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
+github.com/razzie/chess v1.9.0-5022223 h1:N87DeK13rUUhSSS6SMgrlO+mIkM6FwgwxNZEzbKKs9w=
+github.com/razzie/chess v1.9.0-5022223/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
 github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373 h1:Oj1OsZ2ex/k9qx4YyK0XAVtxFxKxWraoJvWmCW5EZy0=
 github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373/go.mod h1:V+xWd4wFdebfgGCdOiKimDLL8uVyDgZ9X6oKnqXp7Pc=
 github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5 h1:m+4Ojb23zEFgJiU1Z+R9GSzErG9nzYFqY/5++fPB7hc=

@@ -297,21 +297,19 @@ func (pos *Position) copy() *Position {
 func (pos *Position) updateCastleRights(m *Move) CastleRights {
 	cr := string(pos.castleRights)
 	p := pos.board.Piece(m.s1)
-	queenSideRookSq, kingSideRookSq := pos.board.castlingRookSquares(p.Color())
-	if p.Color() == White {
-		if p == WhiteKing || m.s1 == kingSideRookSq || m.s2 == kingSideRookSq {
-			cr = strings.Replace(cr, "K", "", -1)
-		}
-		if p == WhiteKing || m.s1 == queenSideRookSq || m.s2 == queenSideRookSq {
-			cr = strings.Replace(cr, "Q", "", -1)
-		}
-	} else {
-		if p == BlackKing || m.s1 == kingSideRookSq || m.s2 == kingSideRookSq {
-			cr = strings.Replace(cr, "k", "", -1)
-		}
-		if p == BlackKing || m.s1 == queenSideRookSq || m.s2 == queenSideRookSq {
-			cr = strings.Replace(cr, "q", "", -1)
-		}
+	whiteQueenSideRookSq, whiteKingSideRookSq := pos.board.castlingRookSquares(White)
+	blackQueenSideRookSq, blackKingSideRookSq := pos.board.castlingRookSquares(Black)
+	if p == WhiteKing || m.s1 == whiteKingSideRookSq || m.s2 == whiteKingSideRookSq {
+		cr = strings.Replace(cr, "K", "", -1)
+	}
+	if p == WhiteKing || m.s1 == whiteQueenSideRookSq || m.s2 == whiteQueenSideRookSq {
+		cr = strings.Replace(cr, "Q", "", -1)
+	}
+	if p == BlackKing || m.s1 == blackKingSideRookSq || m.s2 == blackKingSideRookSq {
+		cr = strings.Replace(cr, "k", "", -1)
+	}
+	if p == BlackKing || m.s1 == blackQueenSideRookSq || m.s2 == blackQueenSideRookSq {
+		cr = strings.Replace(cr, "q", "", -1)
 	}
 	if cr == "" {
 		cr = "-"

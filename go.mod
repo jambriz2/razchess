@@ -18,4 +18,4 @@ require (
 	golang.org/x/image v0.3.0 // indirect
 )
 
-replace github.com/notnil/chess => github.com/razzie/chess v1.9.0-1491673
+replace github.com/notnil/chess => github.com/razzie/chess v1.9.0-5022223
