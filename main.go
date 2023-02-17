@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"embed"
 	"flag"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -39,11 +40,25 @@ func main() {
 	var killTimeout time.Duration
 	var puzzlesFilename string
 	var addr string
+	var logfile string
 	flag.StringVar(&redisURL, "redis", "", "Optional Redis connection string (redis://user:pass@host:port)")
 	flag.DurationVar(&killTimeout, "session-timeout", razchess.DefaultKillTimeout, "Session expiration time after all players left")
 	flag.StringVar(&puzzlesFilename, "puzzles", "", "Optional location of external puzzles (newline separated list of FEN strings)")
 	flag.StringVar(&addr, "addr", ":8080", "Http listen address")
+	flag.StringVar(&logfile, "logfile", "", "Optional path to a log file (still logs to stdout)")
 	flag.Parse()
+
+	if len(logfile) > 0 {
+		f, err := os.OpenFile(logfile, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
+		if err != nil {
+			log.SetOutput(os.Stdout)
+			log.Println(err)
+		} else {
+			defer f.Close()
+			mw := io.MultiWriter(os.Stdout, f)
+			log.SetOutput(mw)
+		}
+	}
 
 	assets, _ := fs.Sub(assets, "assets")
 	mgr := razchess.NewSessionMgr(redisURL, killTimeout)

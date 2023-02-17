@@ -29,6 +29,8 @@
 Usage of razchess:
   -addr string
         Http listen address (default ":8080")
+  -logfile string
+        Optional path to a log file (still logs to stdout)
   -puzzles string
         Optional location of external puzzles (newline separated list of FEN strings)
   -redis string
