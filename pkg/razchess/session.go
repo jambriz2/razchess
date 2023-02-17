@@ -109,6 +109,7 @@ func (sess *Session) addClient(client *jsonrpc.JsonRPC) {
 	defer sess.mtx.Unlock()
 	sess.clients = append(sess.clients, client)
 	sess.slc.stopTimer()
+	sess.updateViewCounts()
 }
 
 func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
@@ -122,9 +123,10 @@ func (sess *Session) removeClient(client *jsonrpc.JsonRPC) {
 	for i, cl := range sess.clients {
 		if cl == client {
 			sess.clients = append(sess.clients[:i], sess.clients[i+1:]...)
-			return
+			break
 		}
 	}
+	sess.updateViewCounts()
 }
 
 func (sess *Session) updateClient(client *jsonrpc.JsonRPC, update *Update) {
@@ -135,6 +137,13 @@ func (sess *Session) updateClients() {
 	update := newUpdate(sess.game)
 	for _, client := range sess.clients {
 		sess.updateClient(client, update)
+	}
+}
+
+func (sess *Session) updateViewCounts() {
+	count := len(sess.clients)
+	for _, client := range sess.clients {
+		client.Notify("Session.UpdateViewCount", count)
 	}
 }
 

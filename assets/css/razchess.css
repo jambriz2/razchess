@@ -82,6 +82,7 @@ body {
     z-index: 99999;
     white-space: nowrap;
     pointer-events: none;
+    white-space: nowrap;
 }
 #menu {
     position: absolute;
@@ -121,7 +122,6 @@ body {
 #status span {
     display: inline-flex;
     overflow: hidden;
-    white-space: nowrap;
     margin: auto 0;
     animation:
         typing 0.5s steps(30, end);

@@ -31,6 +31,7 @@ class Game {
     #jrpc;
     onUpdate;
     onPromotion;
+    onViewCountChange;
 
     constructor(roomID, boardID) {
         this.#roomID = roomID;
@@ -50,6 +51,12 @@ class Game {
         var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + this.#roomID);
         jrpc.on('Session.Update', function(update) {
             self.update(update);
+            return true;
+        })
+        jrpc.on('Session.UpdateViewCount', function(count) {
+            if (self.onViewCountChange) {
+                self.onViewCountChange(count);
+            }
             return true;
         })
         jrpc.toStream = function(_msg){
@@ -82,6 +89,9 @@ class Game {
                     fen: this.#state.fen,
                     pgn: this.#state.pgn
                 });
+            }
+            if (this.onViewCountChange) {
+                this.onViewCountChange(0);
             }
             this.#setLoading();
         }
@@ -232,12 +242,14 @@ class Game {
 class Menu {
     #sessionURL;
     #$status;
+    #$viewers;
     #fen;
     #pgn;
 
-    constructor(roomID, statusDivID) {
+    constructor(roomID, statusDivID, viewersDivID) {
         this.#sessionURL = window.location.protocol + '//' + window.location.host + '/room/' + roomID;
         this.#$status = $('#' + statusDivID);
+        this.#$viewers = $('#' + viewersDivID);
     }
 
     copySessionLink() {
@@ -260,6 +272,10 @@ class Menu {
             html = '<h1>' + update.opening + '</h1> - ' + html;
         }
         this.#$status.html(html);
+    }
+
+    updateViewCount(count) {
+        this.#$viewers.html(count);
     }
 
     createCustomGame() {
@@ -331,7 +347,7 @@ class PawnPromotion {
 }
 
 var roomID = $('#roomID').val();
-var menu = new Menu(roomID, 'status');
+var menu = new Menu(roomID, 'status', 'viewers');
 var promotion = new PawnPromotion('promotion-dialog', 'board');
 var game = new Game(roomID, 'board');
 game.onUpdate = function(update) {
@@ -340,4 +356,7 @@ game.onUpdate = function(update) {
 };
 game.onPromotion = function(color) {
     return promotion.openPromotionDlg(color);
+};
+game.onViewCountChange = function(count) {
+    menu.updateViewCount(count);
 };
