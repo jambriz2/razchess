@@ -29,6 +29,7 @@ class Game {
     #orientation;
     #state;
     #jrpc;
+    #reconnectTimeout
     onUpdate;
     onPromotion;
     onViewCountChange;
@@ -46,6 +47,10 @@ class Game {
     }
 
     #connectToRPC() {
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
         var self = this;
         var jrpc = new simple_jsonrpc();
         var socket = new WebSocket((window.location.protocol == 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/ws/' + this.#roomID);
@@ -96,7 +101,7 @@ class Game {
             this.#setLoading();
         }
         var self = this;
-        setTimeout(() => { self.#connectToRPC(); }, 1000);
+        this.reconnectTimeout = setTimeout(() => { self.#connectToRPC(); }, 1000);
     }
 
     move(move) {
