@@ -47,9 +47,9 @@ class Game {
     }
 
     #connectToRPC() {
-        if (this.reconnectTimeout) {
-            clearTimeout(this.reconnectTimeout);
-            this.reconnectTimeout = null;
+        if (this.#reconnectTimeout) {
+            clearTimeout(this.#reconnectTimeout);
+            this.#reconnectTimeout = null;
         }
         var self = this;
         var jrpc = new simple_jsonrpc();
@@ -101,7 +101,7 @@ class Game {
             this.#setLoading();
         }
         var self = this;
-        this.reconnectTimeout = setTimeout(() => { self.#connectToRPC(); }, 1000);
+        this.#reconnectTimeout = setTimeout(() => { self.#connectToRPC(); }, 1000);
     }
 
     move(move) {
