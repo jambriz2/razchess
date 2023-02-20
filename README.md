@@ -17,7 +17,7 @@
 * Optional persistent storage using Redis, so you can continue your sessions even after restarting razchess
 
 ## Limitations
-* No bot
+* No server side built-in bot (but the standalone bot in [tools/bot/](tools/bot/) can connect to your session)
 * No timer
 * No option to ask for a draw
 * No built-in chat
