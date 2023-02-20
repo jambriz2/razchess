@@ -56,11 +56,23 @@ func (bot *Bot) Update(FEN, PGN string) {
 	for _, move := range newMoves {
 		bot.search.Pos.DoMove(moveFromCoord(&bot.search.Pos, move))
 		bot.search.AddHistory(bot.search.Pos.Hash)
-		bot.search.Pos.StatePly--
+		//bot.search.Pos.StatePly--
+		if bot.search.Pos.StatePly == 99 {
+			bot.search.Pos.StatePly = 0
+		}
 	}
 	bot.moves = len(moves)
 }
 
 func (bot *Bot) BestMove() string {
 	return bot.search.Search().String()
+}
+
+func (bot *Bot) Reset() {
+	bot.setup = false
+	bot.moves = 0
+	bot.search.TT.Clear()
+	bot.search.ClearHistoryTable()
+	bot.search.ClearKillers()
+	bot.search.ClearCounterMoves()
 }

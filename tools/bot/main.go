@@ -9,7 +9,7 @@ import (
 
 const (
 	MaxDepth = 20
-	MoveTime = 120000
+	MoveTime = 60000
 )
 
 func main() {
@@ -35,17 +35,30 @@ func main() {
 	bot := NewBot(MoveTime, MaxDepth)
 	for update := range conn.C {
 		if len(update.Opening) > 0 {
-			fmt.Println(update.Opening, "-", update.Status)
+			fmt.Println(update.FEN, "-", update.Opening, "-", update.Status)
 		} else {
-			fmt.Println(update.Status)
+			fmt.Println(update.FEN, "-", update.Status)
 		}
 		if update.IsGameOver {
 			return
 		} else if update.Turn == color || color == "w+b" {
-			bot.Update(update.FEN, update.PGN)
-			move := bot.BestMove()
-			valid := conn.Move(move)
-			fmt.Println("Found move:", move, ", move accepted:", valid)
+			for {
+				bot.Update(update.FEN, update.PGN)
+				move := bot.BestMove()
+				fmt.Println("Best move:", move)
+				if conn.Move(move) {
+					break
+				} else {
+					fmt.Println("Server rejected the move (maybe someone else moved a piece?)")
+					newUpdate := conn.State.Load()
+					if newUpdate == update {
+						fmt.Println("Bot error")
+						os.Exit(1)
+					} else {
+						break
+					}
+				}
+			}
 		}
 	}
 }
