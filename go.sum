@@ -13,8 +13,10 @@ github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGw
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
 github.com/onsi/gomega v1.18.1 h1:M1GfJqGRrBrrGGsbxzV5dqM2U2ApXefZCQpkukxYRLE=
-github.com/razzie/chess v1.9.0-5022223 h1:N87DeK13rUUhSSS6SMgrlO+mIkM6FwgwxNZEzbKKs9w=
-github.com/razzie/chess v1.9.0-5022223/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
+github.com/razzie/blunder v0.0.0-20230219205641-ce2a3d968a7e h1:4uLdMbKa2HbcbUbk25MyyXl4s9a3j6l2vUNby5vE494=
+github.com/razzie/blunder v0.0.0-20230219205641-ce2a3d968a7e/go.mod h1:20VkqiGNMILuNuusVm1hmJnoVRAT5q8ghSUdP5zK4Ec=
+github.com/razzie/chess v1.9.1-0.20230216225629-5022223cc522 h1:w8g5D6Wda/KHAOLvHabFb8fU1TSjcLlVUFELcvvGSvs=
+github.com/razzie/chess v1.9.1-0.20230216225629-5022223cc522/go.mod h1:cRuJUIBFq9Xki05TWHJxHYkC+fFpq45IWwk94DdlCrA=
 github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373 h1:Oj1OsZ2ex/k9qx4YyK0XAVtxFxKxWraoJvWmCW5EZy0=
 github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373/go.mod h1:V+xWd4wFdebfgGCdOiKimDLL8uVyDgZ9X6oKnqXp7Pc=
 github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5 h1:m+4Ojb23zEFgJiU1Z+R9GSzErG9nzYFqY/5++fPB7hc=
@@ -22,6 +24,8 @@ github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5/go.mod h1:V5HzvG3od
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
+golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf h1:oXVg4h2qJDd9htKxb5SCpFBHLipW6hXmL3qpUixS2jw=
+golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf/go.mod h1:yh0Ynu2b5ZUe3MQfp2nM0ecK7wsgouWTDN0FNeJuIys=
 golang.org/x/image v0.3.0 h1:HTDXbdK9bjfSWkPzDJIw89W8CAtfFGduujWs33NLLsg=
 golang.org/x/image v0.3.0/go.mod h1:fXd9211C/0VTlYuAcOhW8dY/RtEJqODXOWBDpmYBf+A=
 golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4/go.mod h1:jJ57K6gSWd91VN4djpZkiMVwK6gcyfeH4XE8wZrZaV4=

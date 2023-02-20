@@ -1,12 +1,16 @@
-VERSION := `git describe --tags`
+VERSION ?= `git describe --tags`
 BUILDFLAGS := -mod=vendor -ldflags="-s -w" -gcflags=-trimpath=$(CURDIR)
 IMAGE_NAME := razchess
 IMAGE_REGISTRY ?= ghcr.io/razzie
 FULL_IMAGE_NAME := $(IMAGE_REGISTRY)/$(IMAGE_NAME):$(VERSION)
 
-.PHONY: build
-build:
+.PHONY: razchess
+razchess:
 	go build $(BUILDFLAGS) .
+
+.PHONY: bot
+bot:
+	go build $(BUILDFLAGS) ./tools/bot
 
 .PHONY: docker-build
 docker-build:

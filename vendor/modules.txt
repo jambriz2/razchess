@@ -21,16 +21,22 @@ github.com/go-redis/redis/v8/internal/util
 ## explicit
 github.com/golang/freetype/raster
 github.com/golang/freetype/truetype
-# github.com/notnil/chess v1.9.0-1491673 => github.com/razzie/chess v1.9.0-5022223
+# github.com/notnil/chess v1.9.0 => github.com/razzie/chess v1.9.1-0.20230216225629-5022223cc522
 ## explicit; go 1.14
 github.com/notnil/chess
 github.com/notnil/chess/opening
+# github.com/razzie/blunder v0.0.0-20230219205641-ce2a3d968a7e
+## explicit; go 1.18
+github.com/razzie/blunder/engine
 # github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373
 ## explicit; go 1.19
 github.com/razzie/chessimage
 # github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5
 ## explicit; go 1.19
 github.com/razzie/jsonrpc
+# golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
+## explicit; go 1.18
+golang.org/x/exp/constraints
 # golang.org/x/image v0.3.0
 ## explicit; go 1.12
 golang.org/x/image/draw
@@ -41,4 +47,4 @@ golang.org/x/image/math/fixed
 # golang.org/x/net v0.4.0
 ## explicit; go 1.17
 golang.org/x/net/websocket
-# github.com/notnil/chess => github.com/razzie/chess v1.9.0-5022223
+# github.com/notnil/chess => github.com/razzie/chess v1.9.1-0.20230216225629-5022223cc522
