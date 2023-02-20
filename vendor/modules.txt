@@ -47,4 +47,7 @@ golang.org/x/image/math/fixed
 # golang.org/x/net v0.4.0
 ## explicit; go 1.17
 golang.org/x/net/websocket
+# gopkg.in/freeeve/pgn.v1 v1.0.1
+## explicit
+gopkg.in/freeeve/pgn.v1
 # github.com/notnil/chess => github.com/razzie/chess v1.9.1-0.20230216225629-5022223cc522
