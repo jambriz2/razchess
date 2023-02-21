@@ -4,39 +4,55 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"image/gif"
 	"io"
 
 	"github.com/notnil/chess"
 	"github.com/razzie/chessimage"
+	"github.com/razzie/razchess/pkg/razchess/internal"
 )
+
+const boardSize = 512
 
 var palette = getPalette()
 
 func MoveHistoryToGIF(w io.Writer, moves []*chess.Move, positions []*chess.Position) error {
-	var images []image.Image
-
+	renderers := make([]*chessimage.Renderer, 0, len(positions))
 	initialPos := positions[0]
 	positions = positions[1:]
 
-	img, err := moveToImage(initialPos, nil)
+	img, err := prepareMoveRenderer(initialPos, nil)
 	if err != nil {
 		return err
 	}
-	images = append(images, img)
+	renderers = append(renderers, img)
 
 	for i, move := range moves {
-		img, err := moveToImage(positions[i], move)
+		img, err := prepareMoveRenderer(positions[i], move)
 		if err != nil {
 			return err
 		}
-		images = append(images, img)
+		renderers = append(renderers, img)
 	}
+
+	images := make(chan *image.Paletted)
+	go func() {
+		for _, r := range renderers {
+			img, _ := r.Render(chessimage.Options{
+				PieceRatio: 1,
+				BoardSize:  boardSize,
+			})
+			bounds := img.Bounds()
+			palettedImage := image.NewPaletted(bounds, palette)
+			draw.Draw(palettedImage, bounds, img, image.Point{}, draw.Over)
+			images <- palettedImage
+		}
+		close(images)
+	}()
 
 	return convertImagesToGif(w, images, 100)
 }
 
-func moveToImage(pos *chess.Position, move *chess.Move) (image.Image, error) {
+func prepareMoveRenderer(pos *chess.Position, move *chess.Move) (*chessimage.Renderer, error) {
 	r, err := chessimage.NewRendererFromFEN(pos.String())
 	if err != nil {
 		return nil, err
@@ -55,24 +71,11 @@ func moveToImage(pos *chess.Position, move *chess.Move) (image.Image, error) {
 		}
 	}
 
-	return r.Render(chessimage.Options{
-		PieceRatio: 1,
-		BoardSize:  512,
-	})
+	return r, nil
 }
 
-func convertImagesToGif(w io.Writer, images []image.Image, delay int) error {
-	outGif := &gif.GIF{
-		LoopCount: -1,
-	}
-	for _, img := range images {
-		bounds := img.Bounds()
-		palettedImage := image.NewPaletted(bounds, palette)
-		draw.Draw(palettedImage, bounds, img, image.Point{}, draw.Over)
-		outGif.Image = append(outGif.Image, palettedImage)
-		outGif.Delay = append(outGif.Delay, delay)
-	}
-	return gif.EncodeAll(w, outGif)
+func convertImagesToGif(w io.Writer, images <-chan *image.Paletted, delay int) error {
+	return internal.Encode(w, image.Point{X: boardSize, Y: boardSize}, images, delay, -1)
 }
 
 func rgb(r, g, b uint8) color.Color {
