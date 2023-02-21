@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/razzie/blunder/engine"
+	"github.com/razzie/razchess/pkg/razchess"
 )
 
 func init() {
@@ -36,7 +37,7 @@ func NewBot(moveTime int64, maxDepth uint8) *Bot {
 }
 
 func (bot *Bot) Update(FEN, PGN string) {
-	startingFEN, moves, err := parsePGN(PGN)
+	startingFEN, moves, err := razchess.ParsePGN(PGN)
 	if err != nil {
 		panic(err)
 	}

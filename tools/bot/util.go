@@ -1,32 +1,8 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/razzie/blunder/engine"
-	"gopkg.in/freeeve/pgn.v1"
 )
-
-func parsePGN(PGN string) (startingFEN string, moves []string, err error) {
-	startingFEN = engine.FENStartPosition
-	ps := pgn.NewPGNScanner(strings.NewReader(PGN))
-	if ps.Next() {
-		var game *pgn.Game
-		game, err = ps.Scan()
-		if err != nil {
-			return
-		}
-
-		if fen, ok := game.Tags["FEN"]; ok {
-			startingFEN = fen
-		}
-		moves = make([]string, len(game.Moves))
-		for i, move := range game.Moves {
-			moves[i] = move.String()
-		}
-	}
-	return
-}
 
 func coordinateToPos(coordinate string) uint8 {
 	file := coordinate[0] - 'a'

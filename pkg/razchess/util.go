@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/notnil/chess"
+	"gopkg.in/freeeve/pgn.v1"
 )
 
 const (
@@ -155,4 +156,24 @@ func gameToString(game *chess.Game) string {
 		return "pgn:" + strings.TrimSpace(game.String())
 	}
 	return "fen:" + game.FEN()
+}
+
+func ParsePGN(PGN string) (startingFEN string, moves []string, err error) {
+	startingFEN = StartingFEN
+	ps := pgn.NewPGNScanner(strings.NewReader(PGN))
+	if ps.Next() {
+		var game *pgn.Game
+		game, err = ps.Scan()
+		if err != nil {
+			return
+		}
+		if fen, ok := game.Tags["FEN"]; ok {
+			startingFEN = fen
+		}
+		moves = make([]string, len(game.Moves))
+		for i, move := range game.Moves {
+			moves[i] = move.String()
+		}
+	}
+	return
 }

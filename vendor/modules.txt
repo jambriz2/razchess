@@ -25,6 +25,7 @@ github.com/golang/freetype/truetype
 ## explicit; go 1.14
 github.com/notnil/chess
 github.com/notnil/chess/opening
+github.com/notnil/chess/uci
 # github.com/razzie/blunder v0.0.0-20230219205641-ce2a3d968a7e
 ## explicit; go 1.18
 github.com/razzie/blunder/engine
