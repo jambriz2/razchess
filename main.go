@@ -39,12 +39,10 @@ func main() {
 	var redisURL string
 	var killTimeout time.Duration
 	var puzzlesFilename string
-	var addr string
 	var logfile string
 	flag.StringVar(&redisURL, "redis", "", "Optional Redis connection string (redis://user:pass@host:port)")
 	flag.DurationVar(&killTimeout, "session-timeout", razchess.DefaultKillTimeout, "Session expiration time after all players left")
 	flag.StringVar(&puzzlesFilename, "puzzles", "", "Optional location of external puzzles (newline separated list of FEN strings)")
-	flag.StringVar(&addr, "addr", ":8080", "Http listen address")
 	flag.StringVar(&logfile, "logfile", "", "Optional path to a log file (still logs to stdout)")
 	flag.Parse()
 
@@ -60,6 +58,12 @@ func main() {
 		}
 	}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("$PORT must be set")
+	}
+	addr := ":" + port
+
 	assets, _ := fs.Sub(assets, "assets")
 	mgr := razchess.NewSessionMgr(redisURL, killTimeout)
 	srv := razchess.NewServer(assets, mgr, loadPuzzles(puzzlesFilename))
@@ -67,3 +71,4 @@ func main() {
 	log.Println("[RazChess server started]")
 	http.ListenAndServe(addr, srv)
 }
+
