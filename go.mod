@@ -9,6 +9,7 @@ require (
 	github.com/razzie/chessimage v0.0.0-20230115212848-8c813dc69373
 	github.com/razzie/jsonrpc v0.0.0-20230101121601-7e74c3bf4ae5
 	golang.org/x/net v0.4.0
+	gopkg.in/freeeve/pgn.v1 v1.0.1
 )
 
 require (
@@ -18,7 +19,6 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf // indirect
 	golang.org/x/image v0.3.0 // indirect
-	gopkg.in/freeeve/pgn.v1 v1.0.1 // indirect
 )
 
 // go list -f '{{.Version}}' -m github.com/razzie/chess@master
